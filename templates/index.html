@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSDSpeed - ディスクベンチマークダッシュボード</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- Chart.js CDN for real-time speed charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="header">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>SSDSpeed</h1>
+          <span>Win32 Unbuffered Direct I/O Benchmark Engine</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="toolbar">
+        <div class="control-group">
+          <label for="drive-select">ターゲットドライブ:</label>
+          <select id="drive-select">
+            <option value="">検出中...</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="size-select">テストサイズ:</label>
+          <select id="size-select">
+            <option value="256">256 MiB</option>
+            <option value="512" selected>512 MiB</option>
+            <option value="1024">1 GiB</option>
+            <option value="2048">2 GiB</option>
+          </select>
+        </div>
+
+        <button id="btn-start" class="btn-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          テスト開始
+        </button>
+
+        <button id="btn-stop" class="btn-stop">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h12v12H6z"/>
+          </svg>
+          停止
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-grid">
+      
+      <!-- Left: Benchmark Results Grid -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          ベンチマーク測定結果 (MB/s & IOPS)
+        </div>
+
+        <div class="benchmark-table">
+          
+          <!-- SEQ 1M -->
+          <div class="test-row" id="row-seq">
+            <div class="test-info">
+              <span class="test-name">SEQ1M N1T1</span>
+              <span class="test-sub">シーケンシャル (1MB ブロック)</span>
+            </div>
+            <div class="metric-box read">
+              <span class="metric-label">Read</span>
+              <span class="metric-value" id="val-seq-read">0.00</span>
+              <span class="metric-unit">MB/s</span>
+            </div>
+            <div class="metric-box write">
+              <span class="metric-label">Write</span>
+              <span class="metric-value" id="val-seq-write">0.00</span>
+              <span class="metric-unit">MB/s</span>
+            </div>
+          </div>
+
+          <!-- RND 4K Q1T1 -->
+          <div class="test-row" id="row-rnd4k">
+            <div class="test-info">
+              <span class="test-name">RND4K Q1T1</span>
+              <span class="test-sub">ランダム 4KB (キュー深さ 1)</span>
+            </div>
+            <div class="metric-box read">
+              <span class="metric-label">Read</span>
+              <span class="metric-value" id="val-rnd4k-read">0.00</span>
+              <span class="metric-unit" id="unit-rnd4k-read">MB/s (0.0 IOPS)</span>
+            </div>
+            <div class="metric-box write">
+              <span class="metric-label">Write</span>
+              <span class="metric-value" id="val-rnd4k-write">0.00</span>
+              <span class="metric-unit" id="unit-rnd4k-write">MB/s (0.0 IOPS)</span>
+            </div>
+          </div>
+
+          <!-- RND 4K Q32T1 -->
+          <div class="test-row" id="row-rnd4kq32">
+            <div class="test-info">
+              <span class="test-name">RND4K Q32T1</span>
+              <span class="test-sub">ランダム 4KB (キュー深さ 32)</span>
+            </div>
+            <div class="metric-box read">
+              <span class="metric-label">Read</span>
+              <span class="metric-value" id="val-rnd4kq32-read">0.00</span>
+              <span class="metric-unit" id="unit-rnd4kq32-read">MB/s (0.0 IOPS)</span>
+            </div>
+            <div class="metric-box write">
+              <span class="metric-label">Write</span>
+              <span class="metric-value" id="val-rnd4kq32-write">0.00</span>
+              <span class="metric-unit" id="unit-rnd4kq32-write">MB/s (0.0 IOPS)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Status Banner -->
+        <div class="status-card">
+          <div class="status-header">
+            <span class="status-text" id="status-text">待機中 - ドライブを選択してテストを開始してください</span>
+            <span class="status-text" id="progress-percent-text">0.0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Drive Info Side Panel -->
+      <div class="card drive-info-card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          ドライブステータス
+        </div>
+
+        <div class="drive-stat-row">
+          <span class="drive-stat-label">ドライブパス:</span>
+          <span class="drive-stat-val" id="info-mountpoint">-</span>
+        </div>
+        <div class="drive-stat-row">
+          <span class="drive-stat-label">ボリューム名:</span>
+          <span class="drive-stat-val" id="info-label">-</span>
+        </div>
+        <div class="drive-stat-row">
+          <span class="drive-stat-label">ファイルシステム:</span>
+          <span class="drive-stat-val" id="info-fstype">-</span>
+        </div>
+        <div class="drive-stat-row">
+          <span class="drive-stat-label">総容量:</span>
+          <span class="drive-stat-val" id="info-total">-</span>
+        </div>
+        <div class="drive-stat-row">
+          <span class="drive-stat-label">空き容量:</span>
+          <span class="drive-stat-val" id="info-free">-</span>
+        </div>
+
+        <div class="gauge-container">
+          <div class="status-header">
+            <span class="drive-stat-label">ストレージ使用率</span>
+            <span class="drive-stat-val" id="info-percent-text">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="drive-percent-fill" style="background: var(--accent-green);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Real-Time Speed Chart -->
+      <div class="card chart-card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          リアルタイム転送速度 (MB/s)
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="speedChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
