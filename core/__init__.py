@@ -1,1 +1,1 @@
-# SSDSpeed Core Package
+# QuickDiskBench Core Package
