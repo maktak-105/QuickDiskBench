@@ -18,7 +18,7 @@ ZIPを展開したら、次のファイルを同じフォルダに置いたま�
 - `index.html` - GUI本体
 - `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
 - `README.txt` / `README-en.txt` - 使用説明書
-- `LICENSE-en.txt` / `LICENSE-ja.txt` - MIT License
+- `LICENSE` / `LICENSE-ja.txt` - MIT License
 
 GUI版は`QuickDiskBench.exe`を実行します。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
 
@@ -79,7 +79,7 @@ python main.py
 
 ## ライセンス
 
-MIT Licenseです。英語原文は[`LICENSE-en.txt`](LICENSE-en.txt)、日本語参考訳は[`LICENSE-ja.txt`](LICENSE-ja.txt)を確認してください。
+MIT Licenseです。英語原文は[`LICENSE`](LICENSE)、日本語参考訳は[`LICENSE-ja.txt`](LICENSE-ja.txt)を確認してください。
 
 ## 注意事項
 
