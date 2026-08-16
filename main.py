@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from core.drive_manager import get_drive_list
 from core.benchmark import BenchmarkRunner
 
-app = FastAPI(title="SSDSpeed Benchmark API")
+app = FastAPI(title="QuickDiskBench Benchmark API")
 
 # 静的ファイル & テンプレートの設定
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,6 +24,8 @@ runner_thread: threading.Thread = None
 class StartRequest(BaseModel):
     drive: str
     file_size_mb: int = 512
+    profile: str = "cdm"  # "cdm" (with cache) or "raw" (without cache)
+    passes: int = 1       # 1, 3, 5, 9
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -45,7 +47,12 @@ async def start_benchmark(req: StartRequest):
     if not os.path.exists(target_dir):
         return JSONResponse({"status": "error", "message": f"ドライブ {target_dir} が見つかりません。"}, status_code=404)
 
-    current_runner = BenchmarkRunner(target_dir=target_dir, file_size_mb=req.file_size_mb)
+    current_runner = BenchmarkRunner(
+        target_dir=target_dir,
+        file_size_mb=req.file_size_mb,
+        profile=req.profile,
+        passes=req.passes
+    )
     
     runner_thread = threading.Thread(target=current_runner.run_all, daemon=True)
     runner_thread.start()

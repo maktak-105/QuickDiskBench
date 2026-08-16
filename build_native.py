@@ -1,0 +1,153 @@
+import os
+import sys
+import subprocess
+import shutil
+
+def find_compiler():
+    # 1. Check in PATH
+    for comp in ["clang++", "g++"]:
+        p = shutil.which(comp)
+        if p:
+            return p
+            
+    # 2. Check standard installation locations in C:\
+    candidates = [
+        r"C:\tools\llvm-mingw\bin\clang++.exe",
+        r"C:\Program Files\LLVM\bin\clang++.exe",
+        r"C:\Program Files (x86)\LLVM\bin\clang++.exe",
+        r"C:\msys64\ucrt64\bin\g++.exe",
+        r"C:\msys64\mingw64\bin\g++.exe",
+        r"C:\tools\llvm\bin\clang++.exe",
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
+def build():
+    compiler = find_compiler()
+    if not compiler:
+        print("[エラー] C++ コンパイラ (Clang++ または G++) が見つかりませんでした。")
+        return False
+
+    print(f"[発見] 使用コンパイラ: {compiler}")
+    
+    native_dir = os.path.join(os.path.dirname(__file__), "core", "native")
+    engine_src = os.path.join(native_dir, "engine.cpp")
+    cli_src = os.path.join(native_dir, "main_cli.cpp")
+    webview_src = os.path.join(native_dir, "webview_main.cpp")
+    resource_src = os.path.join(native_dir, "QuickDiskBench.rc")
+    resource_obj = os.path.join(native_dir, "QuickDiskBench_res.o")
+    webview_include = r"C:\tools\webview2\build\native\include"
+    
+    dist_dir = os.path.join(os.path.dirname(__file__), "dist")
+    os.makedirs(dist_dir, exist_ok=True)
+    os.makedirs(os.path.join(dist_dir, "templates"), exist_ok=True)
+    os.makedirs(os.path.join(dist_dir, "static", "css"), exist_ok=True)
+    os.makedirs(os.path.join(dist_dir, "static", "js"), exist_ok=True)
+    
+    import bundle_html
+    bundle_html.bundle()
+    
+    out_dll = os.path.join(native_dir, "engine_x64.dll")
+    out_gui_exe = os.path.join(dist_dir, "QuickDiskBench.exe")
+    out_cli_exe = os.path.join(dist_dir, "QuickDiskBench_cli.exe")
+
+    # Compile the Windows application icon resource once and link it into the GUI.
+    windres = os.path.join(os.path.dirname(compiler), "llvm-windres.exe")
+    if not os.path.exists(windres):
+        windres = shutil.which("windres") or shutil.which("llvm-windres")
+    if not windres:
+        print("[エラー] Windows resource compiler (llvm-windres/windres) が見つかりませんでした。")
+        return False
+    cmd_res = [windres, resource_src, "-O", "coff", "-o", resource_obj]
+    print(f"\n[0/3] Windows アイコンリソースをビルド中: {' '.join(cmd_res)}")
+    res_res = subprocess.run(cmd_res, capture_output=True, text=True)
+    if res_res.returncode != 0 or not os.path.exists(resource_obj):
+        print("[失敗] アイコンリソースのビルドに失敗しました:")
+        print(res_res.stderr)
+        return False
+
+    # 1. Build DLL
+    cmd_dll = [
+        compiler,
+        "-O3",
+        "-shared",
+        "-std=c++17",
+        "-static",
+        engine_src,
+        "-o", out_dll,
+        "-lkernel32"
+    ]
+    print(f"\n[1/3] DLL ビルド中: {' '.join(cmd_dll)}")
+    res_dll = subprocess.run(cmd_dll, capture_output=True, text=True)
+    if res_dll.returncode == 0 and os.path.exists(out_dll):
+        print(f"[成功] C++ ネイティブ DLL を生成しました: {out_dll} ({os.path.getsize(out_dll)} bytes)")
+        shutil.copy2(out_dll, os.path.join(dist_dir, "engine_x64.dll"))
+    else:
+        print("[失敗] DLL ビルドに失敗しました:")
+        print(res_dll.stderr)
+        return False
+
+    # 2. Build 100% C++ Native WebView2 App (dist/QuickDiskBench.exe)
+    cmd_gui = [
+        compiler,
+        "-O3",
+        "-mwindows",
+        "-std=c++17",
+        "-static",
+        f"-I{webview_include}",
+        engine_src,
+        webview_src,
+        resource_obj,
+        "-o", out_gui_exe,
+        "-lkernel32",
+        "-luser32",
+        "-lgdi32",
+        "-ldwmapi",
+        "-lole32",
+        "-loleaut32",
+        "-luuid",
+        "-lcomctl32",
+        "-lshell32"
+    ]
+    print(f"\n[2/3] 100% C++ ネイティブ GUI アプリ (dist/QuickDiskBench.exe) ビルド中: {' '.join(cmd_gui)}")
+    res_gui = subprocess.run(cmd_gui, capture_output=True, text=True)
+    if res_gui.returncode == 0 and os.path.exists(out_gui_exe):
+        print(f"[成功] 100% C++ ネイティブ GUI アプリ を生成しました: {out_gui_exe} ({os.path.getsize(out_gui_exe)} bytes)")
+    else:
+        print("[失敗] アプリ ビルドに失敗しました:")
+        print(res_gui.stderr)
+        return False
+
+    # 3. Build CLI Executable (dist/QuickDiskBench_cli.exe)
+    cmd_cli = [
+        compiler,
+        "-O3",
+        "-std=c++17",
+        "-static",
+        engine_src,
+        cli_src,
+        "-o", out_cli_exe,
+        "-lkernel32"
+    ]
+    print(f"\n[3/3] コマンドライン CLI 実行ファイル (dist/QuickDiskBench_cli.exe) ビルド中: {' '.join(cmd_cli)}")
+    res_cli = subprocess.run(cmd_cli, capture_output=True, text=True)
+    if res_cli.returncode == 0 and os.path.exists(out_cli_exe):
+        print(f"[成功] コマンドライン CLI 実行ファイルを生成しました: {out_cli_exe} ({os.path.getsize(out_cli_exe)} bytes)")
+
+    # 4. Copy required runtime DLL and UI assets to dist/
+    wv_loader = r"C:\tools\webview2\build\native\x64\WebView2Loader.dll"
+    if os.path.exists(wv_loader):
+        shutil.copy2(wv_loader, os.path.join(dist_dir, "WebView2Loader.dll"))
+
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "templates", "index.html"), os.path.join(dist_dir, "templates", "index.html"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "css", "style.css"), os.path.join(dist_dir, "static", "css", "style.css"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "js", "app.js"), os.path.join(dist_dir, "static", "js", "app.js"))
+
+    print(f"\n[完成] 配布用パッケージを dist/ フォルダに生成完了: {dist_dir}")
+    return True
+
+if __name__ == "__main__":
+    success = build()
+    sys.exit(0 if success else 1)

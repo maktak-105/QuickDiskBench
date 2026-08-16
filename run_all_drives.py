@@ -8,9 +8,17 @@ from core.drive_manager import get_drive_list
 from core.benchmark import BenchmarkRunner
 
 def main():
+    passes = 1
+    if len(sys.argv) > 1:
+        try:
+            passes = max(1, min(9, int(sys.argv[1])))
+        except ValueError:
+            pass
+
     print("=" * 60)
-    print(" SSDSpeed - 全ドライブ一括ベンチマークテスト")
+    print(" QuickDiskBench - 全ドライブ一括ベンチマークテスト")
     print(f" 開始日時: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f" 測定回数: {passes} 回 (平均 ± 標準偏差を算出)")
     print("=" * 60)
 
     drives = get_drive_list()
@@ -36,6 +44,19 @@ def main():
         print("=" * 50)
 
         # 空き容量チェック (最低 1GB 以上)
+        if "google drive" in label.lower() or fstype.upper() == "FAT32":
+            print(f"[スキップ] クラウド同期/仮想ドライブのためスキップ ({label})")
+            results_summary.append({
+                "mountpoint": mp,
+                "label": label,
+                "fstype": fstype,
+                "total_gb": drive['total_gb'],
+                "free_gb": drive['free_gb'],
+                "status": "skipped (cloud drive)",
+                "results": {}
+            })
+            continue
+
         if drive['free_gb'] < 0.5:
             print(f"[スキップ] 空き容量不足 ({drive['free_gb']} GB)")
             results_summary.append({
@@ -49,7 +70,7 @@ def main():
             })
             continue
 
-        runner = BenchmarkRunner(target_dir=mp, file_size_mb=test_size_mb)
+        runner = BenchmarkRunner(target_dir=mp, file_size_mb=test_size_mb, profile="cdm", passes=passes)
         
         last_phase = ""
         def on_progress(status):
@@ -67,9 +88,10 @@ def main():
         if status_info["status"] == "completed":
             print(f" [完了] 測定時間: {elapsed:.1f} 秒")
             res = status_info["results"]
-            print(f"   Seq Write: {res['seq_write_mbs']} MB/s | Seq Read: {res['seq_read_mbs']} MB/s")
-            print(f"   Rnd4K Q1 Write: {res['rnd4k_write_mbs']} MB/s ({res['rnd4k_write_iops']} IOPS) | Read: {res['rnd4k_read_mbs']} MB/s ({res['rnd4k_read_iops']} IOPS)")
-            print(f"   Rnd4K Q32 Write: {res['rnd4k_q32_write_mbs']} MB/s ({res['rnd4k_q32_write_iops']} IOPS) | Read: {res['rnd4k_q32_read_mbs']} MB/s ({res['rnd4k_q32_read_iops']} IOPS)")
+            print(f"   SEQ1M Q8T1: Read {res.get('seq_q8_read_mbs', 0)} MB/s | Write {res.get('seq_q8_write_mbs', 0)} MB/s")
+            print(f"   SEQ1M Q1T1: Read {res.get('seq_read_mbs', 0)} MB/s | Write {res.get('seq_write_mbs', 0)} MB/s")
+            print(f"   RND4K Q32T1: Read {res.get('rnd4k_q32_read_mbs', 0)} MB/s ({res.get('rnd4k_q32_read_iops', 0):.0f} IOPS) | Write {res.get('rnd4k_q32_write_mbs', 0)} MB/s ({res.get('rnd4k_q32_write_iops', 0):.0f} IOPS)")
+            print(f"   RND4K Q1T1: Read {res.get('rnd4k_read_mbs', 0)} MB/s ({res.get('rnd4k_read_iops', 0):.0f} IOPS) | Write {res.get('rnd4k_write_mbs', 0)} MB/s ({res.get('rnd4k_write_iops', 0):.0f} IOPS)")
             
             results_summary.append({
                 "mountpoint": mp,
@@ -99,6 +121,8 @@ def main():
         json.dump({
             "timestamp": datetime.now().isoformat(),
             "test_size_mb": test_size_mb,
+            "profile": "cdm",
+            "passes": passes,
             "drives": results_summary
         }, f, ensure_ascii=False, indent=2)
     print(f"\n[保存] JSON 結果ファイル: {json_path}")
@@ -106,13 +130,14 @@ def main():
     # 結果を Markdown レポートファイルに保存
     md_path = os.path.join(os.path.dirname(__file__), "benchmark_results_all.md")
     with open(md_path, "w", encoding="utf-8") as f:
-        f.write("# 全ドライブ ベンチマーク測定結果レポート\n\n")
+        f.write("# 全ドライブ ベンチマーク測定結果レポート (キャッシュ測定 & 統計機能)\n\n")
         f.write(f"- **測定日時**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write(f"- **テストサイズ**: {test_size_mb} MiB\n")
-        f.write("- **測定エンジン**: Win32 Direct I/O (Unbuffered, Non-Cached)\n\n")
+        f.write(f"- **測定回数**: {passes} Pass(es) (平均値 ± 標準偏差)\n")
+        f.write("- **測定モード**: OSキャッシュなし・ハードウェアキャッシュあり／ハードウェアキャッシュの影響を抑制 (Overlapped Direct I/O)\n\n")
         f.write("## 測定結果サマリー\n\n")
-        f.write("| ドライブ | ボリューム名 | 容量 (空き/総容量) | Seq Read | Seq Write | Rnd4K Q1 Read | Rnd4K Q1 Write | Rnd4K Q32 Read | Rnd4K Q32 Write |\n")
-        f.write("|---|---|---|---|---|---|---|---|---|\n")
+        f.write("| ドライブ | ボリューム名 | 容量 (空き/総容量) | SEQ1M Q8 Read | SEQ1M Q8 Write | SEQ1M Q1 Read | SEQ1M Q1 Write | RND4K Q32 Read | RND4K Q32 Write | RND4K Q1 Read | RND4K Q1 Write |\n")
+        f.write("|---|---|---|---|---|---|---|---|---|---|---|\n")
 
         for item in results_summary:
             mp = item['mountpoint']
@@ -121,11 +146,48 @@ def main():
             
             if item['status'] == 'success':
                 r = item['results']
-                f.write(f"| **{mp}** | {label} | {cap} | **{r['seq_read_mbs']} MB/s** | **{r['seq_write_mbs']} MB/s** | {r['rnd4k_read_mbs']} MB/s<br>({r['rnd4k_read_iops']:.0f} IOPS) | {r['rnd4k_write_mbs']} MB/s<br>({r['rnd4k_write_iops']:.0f} IOPS) | {r['rnd4k_q32_read_mbs']} MB/s<br>({r['rnd4k_q32_read_iops']:.0f} IOPS) | {r['rnd4k_q32_write_mbs']} MB/s<br>({r['rnd4k_q32_write_iops']:.0f} IOPS) |\n")
-            else:
-                f.write(f"| **{mp}** | {label} | {cap} | - | - | - | - | - | - |\n")
+                def fmt(mbs_key, std_key=""):
+                    v = r.get(mbs_key, 0.0)
+                    s = r.get(std_key, 0.0) if std_key else 0.0
+                    if passes > 1 and s > 0:
+                        return f"{v:.2f} ±{s:.2f} MB/s"
+                    return f"{v:.2f} MB/s"
 
-        f.write("\n## 各ドライブ詳細\n\n")
+                f.write(f"| **{mp}** | {label} | {cap} | **{fmt('seq_q8_read_mbs', 'seq_q8_read_std')}** | **{fmt('seq_q8_write_mbs', 'seq_q8_write_std')}** | {fmt('seq_read_mbs', 'seq_read_std')} | {fmt('seq_write_mbs', 'seq_write_std')} | {fmt('rnd4k_q32_read_mbs', 'rnd4k_q32_read_std')}<br>({r.get('rnd4k_q32_read_iops', 0):.0f} IOPS) | {fmt('rnd4k_q32_write_mbs', 'rnd4k_q32_write_std')}<br>({r.get('rnd4k_q32_write_iops', 0):.0f} IOPS) | {fmt('rnd4k_read_mbs', 'rnd4k_read_std')}<br>({r.get('rnd4k_read_iops', 0):.0f} IOPS) | {fmt('rnd4k_write_mbs', 'rnd4k_write_std')}<br>({r.get('rnd4k_write_iops', 0):.0f} IOPS) |\n")
+            else:
+                f.write(f"| **{mp}** | {label} | {cap} | - | - | - | - | - | - | - | - |\n")
+
+        # 測定項目別 横棒グラフの出力
+        f.write("\n## 測定項目別 比較グラフ (横棒グラフ)\n\n")
+        metrics = [
+            ("seq_q8_read_mbs", "1. SEQ1M Q8T1 リード (Seq Q8 Read)", "MB/s", ""),
+            ("seq_q8_write_mbs", "2. SEQ1M Q8T1 ライト (Seq Q8 Write)", "MB/s", ""),
+            ("seq_read_mbs", "3. SEQ1M Q1T1 リード (Seq Q1 Read)", "MB/s", ""),
+            ("seq_write_mbs", "4. SEQ1M Q1T1 ライト (Seq Q1 Write)", "MB/s", ""),
+            ("rnd4k_q32_read_mbs", "5. RND4K Q32T1 リード (Rnd4K Q32 Read)", "MB/s", "rnd4k_q32_read_iops"),
+            ("rnd4k_q32_write_mbs", "6. RND4K Q32T1 ライト (Rnd4K Q32 Write)", "MB/s", "rnd4k_q32_write_iops"),
+            ("rnd4k_read_mbs", "7. RND4K Q1T1 リード (Rnd4K Q1 Read)", "MB/s", "rnd4k_read_iops"),
+            ("rnd4k_write_mbs", "8. RND4K Q1T1 ライト (Rnd4K Q1 Write)", "MB/s", "rnd4k_write_iops"),
+        ]
+
+        bar_max_width = 30
+        for m_key, title, unit, iops_key in metrics:
+            f.write(f"### {title}\n```text\n")
+            success_drives = [d for d in results_summary if d.get("status") == "success"]
+            sorted_drives = sorted(success_drives, key=lambda d: d.get("mountpoint", ""))
+            max_val = max([d.get("results", {}).get(m_key, 0) for d in sorted_drives], default=1.0)
+            if max_val <= 0: max_val = 1.0
+
+            for d in sorted_drives:
+                res = d.get("results", {})
+                val = res.get(m_key, 0.0)
+                bar_len = int(round((val / max_val) * bar_max_width))
+                bar_str = "█" * bar_len if bar_len > 0 else ("▏" if val > 0 else "")
+                iops_str = f" [{res.get(iops_key, 0):.0f} IOPS]" if iops_key and iops_key in res else ""
+                f.write(f"{d['mountpoint']:<4} [{d['label']:<14}] : {val:>8.2f} {unit} | {bar_str} ({bar_len}){iops_str}\n")
+            f.write("```\n\n")
+
+        f.write("## 各ドライブ詳細\n\n")
         for item in results_summary:
             f.write(f"### ドライブ {item['mountpoint']} [{item['label']}]\n")
             f.write(f"- ファイルシステム: `{item['fstype']}`\n")
@@ -133,15 +195,18 @@ def main():
             f.write(f"- ステータス: `{item['status']}`\n")
             if item['status'] == 'success':
                 r = item['results']
-                f.write(f"- **シーケンシャル 1MB**:\n")
-                f.write(f"  - 読み込み: `{r['seq_read_mbs']} MB/s`\n")
-                f.write(f"  - 書き込み: `{r['seq_write_mbs']} MB/s`\n")
-                f.write(f"- **ランダム 4KB (Q1T1)**:\n")
-                f.write(f"  - 読み込み: `{r['rnd4k_read_mbs']} MB/s` ({r['rnd4k_read_iops']} IOPS)\n")
-                f.write(f"  - 書き込み: `{r['rnd4k_write_mbs']} MB/s` ({r['rnd4k_write_iops']} IOPS)\n")
-                f.write(f"- **ランダム 4KB (Q32T1)**:\n")
-                f.write(f"  - 読み込み: `{r['rnd4k_q32_read_mbs']} MB/s` ({r['rnd4k_q32_read_iops']} IOPS)\n")
-                f.write(f"  - 書き込み: `{r['rnd4k_q32_write_mbs']} MB/s` ({r['rnd4k_q32_write_iops']} IOPS)\n")
+                f.write(f"- **SEQ1M Q8T1**:\n")
+                f.write(f"  - 読み込み: `{r.get('seq_q8_read_mbs', 0)} MB/s`\n")
+                f.write(f"  - 書き込み: `{r.get('seq_q8_write_mbs', 0)} MB/s`\n")
+                f.write(f"- **SEQ1M Q1T1**:\n")
+                f.write(f"  - 読み込み: `{r.get('seq_read_mbs', 0)} MB/s`\n")
+                f.write(f"  - 書き込み: `{r.get('seq_write_mbs', 0)} MB/s`\n")
+                f.write(f"- **RND4K Q32T1**:\n")
+                f.write(f"  - 読み込み: `{r.get('rnd4k_q32_read_mbs', 0)} MB/s` ({r.get('rnd4k_q32_read_iops', 0)} IOPS)\n")
+                f.write(f"  - 書き込み: `{r.get('rnd4k_q32_write_mbs', 0)} MB/s` ({r.get('rnd4k_q32_write_iops', 0)} IOPS)\n")
+                f.write(f"- **RND4K Q1T1**:\n")
+                f.write(f"  - 読み込み: `{r.get('rnd4k_read_mbs', 0)} MB/s` ({r.get('rnd4k_read_iops', 0)} IOPS)\n")
+                f.write(f"  - 書き込み: `{r.get('rnd4k_write_mbs', 0)} MB/s` ({r.get('rnd4k_write_iops', 0)} IOPS)\n")
             f.write("\n")
 
     print(f"[保存] Markdown レポート: {md_path}")
