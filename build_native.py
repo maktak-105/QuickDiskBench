@@ -38,7 +38,10 @@ def build():
     webview_src = os.path.join(native_dir, "webview_main.cpp")
     resource_src = os.path.join(native_dir, "QuickDiskBench.rc")
     resource_obj = os.path.join(native_dir, "QuickDiskBench_res.o")
-    webview_include = r"C:\tools\webview2\build\native\include"
+    webview_include = os.environ.get("WEBVIEW2_INCLUDE", r"C:\tools\webview2\build\native\include")
+    if not os.path.isdir(webview_include):
+        print(f"[エラー] WebView2 SDK headers not found: {webview_include}")
+        return False
     
     dist_dir = os.path.join(os.path.dirname(__file__), "dist")
     os.makedirs(dist_dir, exist_ok=True)
