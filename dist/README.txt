@@ -7,6 +7,13 @@ GitHubリポジトリ
 -----------------
 https://github.com/maktak-105/QuickDiskBench
 
+配布用Release
+-------------
+最新版の配布ZIPはGitHub Releasesから取得できます。
+https://github.com/maktak-105/QuickDiskBench/releases
+Releaseページで `QuickDiskBench-binary.zip` をダウンロードし、任意のフォルダへ展開してください。
+ZIP内のファイルは分けず、同じフォルダに置いたまま使用します。
+
 動作環境
 --------
 - Windows 10 / 11 (64-bit)

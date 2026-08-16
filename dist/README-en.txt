@@ -7,6 +7,12 @@ GitHub repository
 -----------------
 https://github.com/maktak-105/QuickDiskBench
 
+Binary release
+--------------
+Download the latest package from GitHub Releases:
+https://github.com/maktak-105/QuickDiskBench/releases
+On the release page, download `QuickDiskBench-binary.zip`, extract it, and keep all extracted files in the same folder.
+
 Requirements
 ------------
 - Windows 10 / 11 (64-bit)
