@@ -49,8 +49,7 @@ jobs:
             'dist/WebView2Loader.dll',
             'dist/index.html',
             'benchmark-all-drives.ps1',
-            'dist/README.txt',
-            'dist/README-en.txt',
+            'README.md',
             'LICENSE-en.txt',
             'LICENSE-ja.txt'
           )
