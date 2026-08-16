@@ -50,7 +50,7 @@ jobs:
             'dist/index.html',
             'benchmark-all-drives.ps1',
             'README.md',
-            'LICENSE-en.txt',
+            'LICENSE',
             'LICENSE-ja.txt'
           )
           foreach ($file in $files) {
