@@ -9,7 +9,7 @@ This file records the major changes in each public version.
 - Second digit (for example, `1.0.0` to `1.1.0`): bug fixes
 - Third digit (for example, `1.1.0` to `1.1.1`): other changes, such as documentation updates
 
-## 2.1.1 (in preparation)
+## 2.1.1 (2026-08-17)
 
 ### Distribution and build
 
