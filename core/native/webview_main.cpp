@@ -434,7 +434,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 // Helper to read entire UTF-8 file into std::wstring
 std::wstring ReadUtf8FileToWString(const std::wstring& path) {
-    std::ifstream file(path, std::ios::binary);
+    std::ifstream file(path.c_str(), std::ios::binary);
     if (!file.is_open()) return L"";
     std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     if (str.empty()) return L"";
