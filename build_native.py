@@ -77,8 +77,14 @@ def build():
     out_cli_exe = os.path.join(binary_dir, "QuickDiskBench_cli.exe")
 
     # Compile the Windows application icon resource once and link it into the GUI.
-    windres = os.path.join(os.path.dirname(compiler), "llvm-windres.exe")
-    if not os.path.exists(windres):
+    compiler_dir = os.path.dirname(compiler)
+    windres = None
+    for name in ("llvm-windres.exe", "windres.exe"):
+        candidate = os.path.join(compiler_dir, name)
+        if os.path.exists(candidate):
+            windres = candidate
+            break
+    if not windres:
         windres = shutil.which("windres") or shutil.which("llvm-windres")
     if not windres:
         print("[エラー] Windows resource compiler (llvm-windres/windres) が見つかりませんでした。")

@@ -31,8 +31,9 @@ Usage
 -----
 1. Extract the distribution ZIP.
 2. Run `QuickDiskBench.exe` for the graphical interface.
-3. Select the target drive, test size, pass count, and cache mode.
-4. Close important applications before testing because disk load can be high.
+3. Select the target drive, test size, pass count, cache mode, and timeout.
+4. Use the stacked buttons on the right of the header for language, CSV export, and Help. The Help dialog ends with the author image.
+5. Close important applications before testing because disk load can be high.
 
 The command-line version is `QuickDiskBench_cli.exe`.
 Open PowerShell in the extracted folder and run `QuickDiskBench_cli.exe --help` to see all options.
