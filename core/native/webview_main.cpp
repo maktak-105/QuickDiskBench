@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winioctl.h>
 #include <commctrl.h>
 #include <dwmapi.h>
 #include <unknwn.h>
@@ -19,6 +20,7 @@
 #include <atomic>
 #include <functional>
 #include <cstdarg>
+#include <chrono>
 
 #define WM_POST_PROGRESS (WM_APP + 1)
 #define IDI_ICON1 101
@@ -130,6 +132,8 @@ extern "C" int run_benchmark_test(
     double* out_iops
 );
 
+extern "C" int set_benchmark_timeout_sec(double timeout_sec);
+
 // Global WebView2 pointers
 HWND g_hWnd = NULL;
 ICoreWebView2Controller* g_controller = NULL;
@@ -139,6 +143,8 @@ std::atomic<bool> g_isRunning(false);
 std::atomic<int> g_stopFlag(0);
 std::thread g_workerThread;
 std::wstring g_logPath;
+std::chrono::steady_clock::time_point g_benchmarkStart;
+bool g_benchmarkTimerStarted = false;
 
 static void LOG(const char* fmt, ...);
 
@@ -147,11 +153,94 @@ struct DriveInfo {
     std::wstring mountpoint;
     std::wstring label;
     std::wstring fstype;
+    std::wstring manufacturer;
+    std::wstring model;
     double total_gb;
     double free_gb;
     double used_gb;
     double percent;
 };
+
+std::wstring TrimStorageText(const char* text, size_t max_len) {
+    if (!text || max_len == 0) return L"";
+    size_t len = 0;
+    while (len < max_len && text[len] != '\0') ++len;
+    while (len > 0 && (text[len - 1] == ' ' || text[len - 1] == '\t')) --len;
+    if (len == 0) return L"";
+
+    int chars = MultiByteToWideChar(CP_ACP, 0, text, static_cast<int>(len), NULL, 0);
+    if (chars <= 0) return L"";
+    std::wstring result(chars, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, text, static_cast<int>(len), &result[0], chars);
+    return result;
+}
+
+std::wstring StorageDescriptorText(const STORAGE_DEVICE_DESCRIPTOR* descriptor, DWORD buffer_size, DWORD offset) {
+    if (!descriptor || offset == 0 || offset >= buffer_size) return L"";
+    const char* text = reinterpret_cast<const char*>(descriptor) + offset;
+    return TrimStorageText(text, buffer_size - offset);
+}
+
+bool GetPhysicalDriveIdentity(const std::wstring& mountpoint, std::wstring& manufacturer, std::wstring& model) {
+    if (mountpoint.size() < 2 || mountpoint[1] != L':') return false;
+
+    std::wstring volume_path = L"\\\\.\\" + mountpoint.substr(0, 2);
+    HANDLE volume = CreateFileW(
+        volume_path.c_str(), 0,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL, OPEN_EXISTING, 0, NULL
+    );
+    if (volume == INVALID_HANDLE_VALUE) return false;
+
+    STORAGE_DEVICE_NUMBER device_number = {};
+    DWORD returned = 0;
+    BOOL ok = DeviceIoControl(
+        volume, IOCTL_STORAGE_GET_DEVICE_NUMBER,
+        NULL, 0, &device_number, sizeof(device_number), &returned, NULL
+    );
+    CloseHandle(volume);
+    if (!ok) return false;
+
+    std::wstring physical_path = L"\\\\.\\PhysicalDrive" + std::to_wstring(device_number.DeviceNumber);
+    HANDLE physical = CreateFileW(
+        physical_path.c_str(), 0,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL, OPEN_EXISTING, 0, NULL
+    );
+    if (physical == INVALID_HANDLE_VALUE) return false;
+
+    STORAGE_PROPERTY_QUERY query = {};
+    query.PropertyId = StorageDeviceProperty;
+    query.QueryType = PropertyStandardQuery;
+    BYTE buffer[4096] = {};
+    ok = DeviceIoControl(
+        physical, IOCTL_STORAGE_QUERY_PROPERTY,
+        &query, sizeof(query), buffer, sizeof(buffer), &returned, NULL
+    );
+    CloseHandle(physical);
+    if (!ok || returned < sizeof(STORAGE_DEVICE_DESCRIPTOR)) return false;
+
+    const auto* descriptor = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(buffer);
+    manufacturer = StorageDescriptorText(descriptor, returned, descriptor->VendorIdOffset);
+    model = StorageDescriptorText(descriptor, returned, descriptor->ProductIdOffset);
+    return !manufacturer.empty() || !model.empty();
+}
+
+std::wstring JsonEscape(const std::wstring& value) {
+    std::wstring escaped;
+    escaped.reserve(value.size());
+    for (wchar_t ch : value) {
+        switch (ch) {
+            case L'\\': escaped += L"\\\\"; break;
+            case L'"': escaped += L"\\\""; break;
+            case L'\n': escaped += L"\\n"; break;
+            case L'\r': escaped += L"\\r"; break;
+            case L'\t': escaped += L"\\t"; break;
+            default: escaped += ch; break;
+        }
+    }
+    return escaped;
+}
 
 std::vector<DriveInfo> GetDrivesList() {
     std::vector<DriveInfo> list;
@@ -178,10 +267,15 @@ std::vector<DriveInfo> GetDrivesList() {
 
             std::wstring label = vol_name;
             if (label.find(L"Google") == std::wstring::npos) {
+                std::wstring manufacturer;
+                std::wstring model;
+                GetPhysicalDriveIdentity(drive, manufacturer, model);
                 list.push_back({
                     drive,
                     label.empty() ? L"(No Label)" : label,
                     fs_name,
+                    manufacturer,
+                    model,
                     std::round(total_gb * 100.0) / 100.0,
                     std::round(free_gb * 100.0) / 100.0,
                     std::round(used_gb * 100.0) / 100.0,
@@ -202,10 +296,12 @@ std::wstring SerializeDrivesJson(const std::vector<DriveInfo>& drives) {
         if (i > 0) ss << L",";
         std::wstring mp = d.mountpoint;
         if (!mp.empty() && mp.back() == L'\\') mp += L'\\';
-        ss << L"{\"mountpoint\":\"" << mp << L"\","
-           << L"\"device\":\"" << mp << L"\","
-           << L"\"label\":\"" << d.label << L"\","
-           << L"\"fstype\":\"" << d.fstype << L"\","
+        ss << L"{\"mountpoint\":\"" << JsonEscape(mp) << L"\","
+           << L"\"device\":\"" << JsonEscape(mp) << L"\","
+           << L"\"label\":\"" << JsonEscape(d.label) << L"\","
+           << L"\"fstype\":\"" << JsonEscape(d.fstype) << L"\","
+           << L"\"manufacturer\":\"" << JsonEscape(d.manufacturer) << L"\","
+           << L"\"model\":\"" << JsonEscape(d.model) << L"\","
            << L"\"total_gb\":" << d.total_gb << L","
            << L"\"free_gb\":" << d.free_gb << L","
            << L"\"used_gb\":" << d.used_gb << L","
@@ -223,6 +319,8 @@ struct ProgressState {
     std::wstring status = L"running";
     int passes = 1;
     int current_pass = 1;
+    bool io_waiting = false;
+    double elapsed_seconds = 0.0;
 
     double seq_q8_read_mbs = 0.0, seq_q8_read_std = 0.0;
     double seq_q8_write_mbs = 0.0, seq_q8_write_std = 0.0;
@@ -238,6 +336,10 @@ ProgressState g_prog;
 
 // Post thread-safe progress to UI thread message queue
 void PostProgressToWebView() {
+    if (g_benchmarkTimerStarted) {
+        g_prog.elapsed_seconds = std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - g_benchmarkStart).count();
+    }
     std::wstringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss << L"{\"type\":\"progress\",\"data\":{"
@@ -245,9 +347,11 @@ void PostProgressToWebView() {
        << L"\"current_test\":\"" << g_prog.current_test << L"\","
        << L"\"current_speed_mbs\":" << g_prog.current_speed_mbs << L","
        << L"\"current_iops\":" << g_prog.current_iops << L","
+       << L"\"io_waiting\":" << (g_prog.io_waiting ? L"true" : L"false") << L","
        << L"\"progress_percent\":" << g_prog.progress_percent << L","
        << L"\"passes\":" << g_prog.passes << L","
        << L"\"current_pass\":" << g_prog.current_pass << L","
+       << L"\"elapsed_seconds\":" << g_prog.elapsed_seconds << L","
        << L"\"results\":{"
        << L"\"seq_q8_read_mbs\":" << g_prog.seq_q8_read_mbs << L","
        << L"\"seq_q8_read_std\":" << g_prog.seq_q8_read_std << L","
@@ -279,14 +383,26 @@ void GlobalProgressCallback(const char* test_name, double speed_mbs, double iops
     g_prog.current_speed_mbs = speed_mbs;
     g_prog.current_iops = iops;
     g_prog.progress_percent = pct;
+    g_prog.io_waiting = (g_prog.status == L"running" && speed_mbs <= 0.0 && pct < 100.0);
     PostProgressToWebView();
 }
 
-void NativeBenchmarkWorker(std::wstring target_dir, int size_mb, int passes, int write_through) {
+void NativeBenchmarkWorker(std::wstring target_dir, int size_mb, int passes, int write_through, double timeout_sec) {
     g_stopFlag = 0;
+    g_benchmarkStart = std::chrono::steady_clock::now();
+    g_benchmarkTimerStarted = true;
     g_prog = ProgressState();
     g_prog.status = L"running";
     g_prog.passes = passes;
+
+    if (set_benchmark_timeout_sec(timeout_sec) != ERROR_SUCCESS) {
+        g_prog.status = L"error";
+        g_prog.current_test = L"無効なタイムアウト設定";
+        g_prog.io_waiting = false;
+        PostProgressToWebView();
+        g_isRunning = false;
+        return;
+    }
 
     uint64_t file_size_bytes = static_cast<uint64_t>(size_mb) * 1024 * 1024;
     std::wstring test_file = target_dir + L"QuickDiskBench_wv_test.dat";
@@ -319,15 +435,18 @@ void NativeBenchmarkWorker(std::wstring target_dir, int size_mb, int passes, int
         { 8, TEST_RND_READ,  4096,        1, L"RND4K Q1T1 読み込み" }
     };
 
+    int first_error = 0;
+
     for (const auto& step : steps) {
-        if (g_stopFlag != 0) break;
+        if (g_stopFlag != 0 || first_error != 0) break;
         std::vector<double> spd_samples;
         std::vector<double> iops_samples;
 
         for (int p = 1; p <= passes; ++p) {
-            if (g_stopFlag != 0) break;
+            if (g_stopFlag != 0 || first_error != 0) break;
             g_prog.current_pass = p;
             g_prog.current_test = step.name + (passes > 1 ? (L" (Pass " + std::to_wstring(p) + L"/" + std::to_wstring(passes) + L")") : L"");
+            g_prog.io_waiting = false;
             PostProgressToWebView();
 
             double spd = 0.0, iops = 0.0;
@@ -347,6 +466,12 @@ void NativeBenchmarkWorker(std::wstring target_dir, int size_mb, int passes, int
             if (ret == 0 && spd > 0) {
                 spd_samples.push_back(spd);
                 iops_samples.push_back(iops);
+            } else if (ret != 0) {
+                first_error = ret;
+                g_prog.status = L"error";
+                g_prog.current_test = step.name + L" 失敗 (Win32 error " + std::to_wstring(ret) + L")";
+                PostProgressToWebView();
+                break;
             }
         }
 
@@ -376,9 +501,15 @@ void NativeBenchmarkWorker(std::wstring target_dir, int size_mb, int passes, int
     }
 
     DeleteFileW(test_file.c_str());
-    g_prog.status = (g_stopFlag != 0) ? L"stopped" : L"completed";
-    g_prog.progress_percent = 100.0;
-    g_prog.current_test = (g_stopFlag != 0) ? L"測定が停止されました。" : L"測定完了！すべてのテストが終了しました。";
+    if (first_error != 0) {
+        g_prog.status = L"error";
+        g_prog.current_test = L"測定失敗 (Win32 error " + std::to_wstring(first_error) + L")";
+    } else {
+        g_prog.status = (g_stopFlag != 0) ? L"stopped" : L"completed";
+        g_prog.progress_percent = 100.0;
+        g_prog.current_test = (g_stopFlag != 0) ? L"測定が停止されました。" : L"測定完了！すべてのテストが終了しました。";
+    }
+    g_prog.io_waiting = false;
     PostProgressToWebView();
     g_isRunning = false;
 }
@@ -471,7 +602,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
     std::string cmdStr = lpCmdLine ? lpCmdLine : "";
     if (cmdStr.find("--test-run") != std::string::npos) {
         // Run full benchmark verification
-        NativeBenchmarkWorker(L"C:\\", 64, 1, 0);
+        NativeBenchmarkWorker(L"C:\\", 64, 1, 0, 60.0);
         std::wofstream out("test_run.log");
         out << L"STATUS: " << g_prog.status << L"\n";
         out << L"SEQ1M_Q8_WRITE: " << g_prog.seq_q8_write_mbs << L"\n";
@@ -507,9 +638,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 
     g_hWnd = CreateWindowExW(
         0, wc.lpszClassName,
-        L"QuickDiskBench v1.0.0 - Native Storage Benchmark (Cache Modes & Statistics)",
+        L"QuickDiskBench v2.1.1 - Native Storage Benchmark (Cache Modes & Statistics)",
         WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 900, 760,
+        // Leave enough vertical space for the results card and the chart at startup.
+        CW_USEDEFAULT, CW_USEDEFAULT, 900, 900,
         NULL, NULL, hInstance, NULL
     );
     if (!g_hWnd) { LOG("[ERR] CreateWindowExW failed: %lu", GetLastError()); return 1; }
@@ -674,11 +806,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
                                                 }
                                             }
 
+                                            double timeout_sec = 60.0;
+                                            size_t tPos = msg.find(L"timeout_sec");
+                                            if (tPos != std::wstring::npos) {
+                                                size_t colon = msg.find(L':', tPos);
+                                                if (colon != std::wstring::npos) {
+                                                    timeout_sec = _wtof(msg.substr(colon + 1).c_str());
+                                                    if (timeout_sec < 1.0 || timeout_sec > 3600.0) timeout_sec = 60.0;
+                                                }
+                                            }
+
                                             int write_through = (msg.find(L"raw") != std::wstring::npos) ? 1 : 0;
 
                                             g_isRunning = true;
                                             if (g_workerThread.joinable()) g_workerThread.join();
-                                            g_workerThread = std::thread(NativeBenchmarkWorker, drive, size_mb, passes, write_through);
+                                            g_workerThread = std::thread(NativeBenchmarkWorker, drive, size_mb, passes, write_through, timeout_sec);
                                         } else if (msg.find(L"stop") != std::wstring::npos) {
                                             g_stopFlag = 1;
                                         }

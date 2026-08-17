@@ -33,6 +33,8 @@ extern "C" int run_benchmark_test(
     double* out_iops
 );
 
+extern "C" int set_benchmark_timeout_sec(double timeout_sec);
+
 struct StatResult {
     double mean = 0.0;
     double std_dev = 0.0;
@@ -64,7 +66,7 @@ StatResult calc_stats(const std::vector<double>& vals, const std::vector<double>
 
 void print_header() {
     std::cout << "\033[1;36m============================================================\033[0m\n";
-    std::cout << "\033[1;37m   QuickDiskBench Native C++ Benchmark Engine v2.0 (LLVM Clang)\033[0m\n";
+    std::cout << "\033[1;37m   QuickDiskBench Native C++ Benchmark Engine v2.1.1 (LLVM Clang)\033[0m\n";
     std::cout << "\033[1;36m============================================================\033[0m\n\n";
 }
 
@@ -83,11 +85,13 @@ void print_help() {
               << "  -d, --drive PATH     Test location, e.g. C:\\ or D:\\ (default: C:\\)\n"
               << "  -s, --size MiB       Test file size, minimum 64 MiB (default: 256)\n"
               << "  -n, --passes N       Repeat each test 1-9 times (default: 1)\n"
+              << "      --timeout SEC    Per-test timeout in seconds (default: 60; max: 3600)\n"
               << "      --raw            Write-through mode; reduces device write-cache effects\n"
               << "      --csv PATH       Write the result summary as UTF-8 CSV\n"
               << "  -h, --help           Show this help\n\n"
               << "Cache behavior: Windows OS cache is bypassed. Normal mode allows device cache;\n"
-              << "--raw additionally requests write-through. The benchmark writes a temporary file.\n";
+              << "--raw additionally requests write-through. The benchmark writes a temporary file.\n"
+              << "If a test fails with Win32 error 1460, retry with a larger --timeout value.\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -103,6 +107,7 @@ int main(int argc, char* argv[]) {
     int size_mb = 256;
     int passes = 1;
     int write_through = 0;
+    double timeout_sec = 60.0;
     std::string csv_path;
 
     for (int i = 1; i < argc; ++i) {
@@ -116,11 +121,19 @@ int main(int argc, char* argv[]) {
             size_mb = std::max(64, std::atoi(argv[++i]));
         } else if ((arg == "-n" || arg == "--passes") && i + 1 < argc) {
             passes = std::max(1, std::min(9, std::atoi(argv[++i])));
+        } else if (arg == "--timeout" && i + 1 < argc) {
+            timeout_sec = std::atof(argv[++i]);
         } else if (arg == "--raw") {
             write_through = 1;
         } else if (arg == "--csv" && i + 1 < argc) {
             csv_path = argv[++i];
         }
+    }
+
+    int timeout_result = set_benchmark_timeout_sec(timeout_sec);
+    if (timeout_result != 0) {
+        std::cerr << "Invalid --timeout value. Use a number from 1 to 3600 seconds.\n";
+        return 2;
     }
 
     std::wstring test_file = target_dir + L"QuickDiskBench_cli_test.dat";
@@ -140,6 +153,7 @@ int main(int argc, char* argv[]) {
     std::wcout << L"Test File    : " << test_file << L"\n";
     std::cout << "Test Size    : " << size_mb << " MiB\n";
     std::cout << "Test Passes  : " << passes << " Pass(es)\n";
+    std::cout << "Timeout      : " << std::fixed << std::setprecision(0) << timeout_sec << " sec per test\n";
     std::cout << "Profile      : " << (write_through ? "Without Cache (Write-Through; device cache reduced)" : "With Cache (OS cache bypassed; device cache available)") << "\n\n";
 
     struct TestConfig {
@@ -193,6 +207,8 @@ int main(int argc, char* argv[]) {
             if (ret == 0) {
                 speed_samples.push_back(speed);
                 iops_samples.push_back(iops);
+            } else {
+                std::cerr << "Benchmark failed for " << t.name << " (Win32 error " << ret << ")\n";
             }
         }
         std::cout << "\n";

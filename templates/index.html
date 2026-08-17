@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickDiskBench v1.0.0 - Storage Benchmark</title>
+  <title>QuickDiskBench v2.1.1 - Storage Benchmark</title>
   <link rel="stylesheet" href="./static/css/style.css">
   <link rel="stylesheet" href="../static/css/style.css">
   <script src="./static/js/chart.min.js"></script>
@@ -24,7 +24,7 @@
         <div class="logo-text">
           <div class="logo-title-row">
             <h1>QuickDiskBench</h1>
-            <span class="version-badge">v1.0.0</span>
+            <span class="version-badge">v2.1.1</span>
           </div>
           <span class="logo-sub1" id="lbl-sub1" data-i18n="sub1">Win32 Unbuffered Direct I/O Benchmark Engine</span>
           <span class="logo-sub2">GitHub: maktak-105</span>
@@ -81,6 +81,17 @@
           </select>
         </div>
 
+        <div class="control-group">
+          <label for="timeout-select" data-i18n="lbl_timeout">制限時間:</label>
+          <select id="timeout-select">
+            <option value="60" selected>60 秒</option>
+            <option value="120">120 秒</option>
+            <option value="180">180 秒</option>
+            <option value="300">300 秒</option>
+            <option value="600">600 秒</option>
+          </select>
+        </div>
+
         <button id="btn-start" class="btn-start">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M8 5v14l11-7z"/>
@@ -101,7 +112,7 @@
     <div class="dashboard-grid">
       
       <!-- Left: Benchmark Results Grid -->
-      <div class="card">
+      <div class="card benchmark-card">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -236,8 +247,16 @@
 
         <div class="drive-info-grid">
           <div class="info-item">
+            <span class="info-label" data-i18n="lbl_manufacturer">メーカー:</span>
+            <span class="info-val highlight" id="info-manufacturer">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label" data-i18n="lbl_model">機種:</span>
+            <span class="info-val" id="info-model">-</span>
+          </div>
+          <div class="info-item">
             <span class="info-label" data-i18n="lbl_mount">マウント:</span>
-            <span class="info-val highlight" id="info-mountpoint">-</span>
+            <span class="info-val" id="info-mountpoint">-</span>
           </div>
           <div class="info-item">
             <span class="info-label" data-i18n="lbl_vol_label">ラベル:</span>
@@ -264,6 +283,11 @@
             <div class="gauge-bar">
               <div class="gauge-fill" id="drive-percent-fill" style="width: 0%;"></div>
             </div>
+          </div>
+
+          <div class="measurement-time" aria-live="polite">
+            <span class="info-label" data-i18n="lbl_elapsed">実計測時間:</span>
+            <span class="info-val" id="info-elapsed">--:--.-</span>
           </div>
         </div>
       </div>

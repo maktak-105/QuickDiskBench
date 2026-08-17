@@ -26,6 +26,7 @@ class StartRequest(BaseModel):
     file_size_mb: int = 512
     profile: str = "cdm"  # "cdm" (with cache) or "raw" (without cache)
     passes: int = 1       # 1, 3, 5, 9
+    timeout_sec: float = 60.0
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -51,7 +52,8 @@ async def start_benchmark(req: StartRequest):
         target_dir=target_dir,
         file_size_mb=req.file_size_mb,
         profile=req.profile,
-        passes=req.passes
+        passes=req.passes,
+        timeout_sec=req.timeout_sec
     )
     
     runner_thread = threading.Thread(target=current_runner.run_all, daemon=True)
@@ -78,6 +80,7 @@ async def get_status():
         "progress_percent": 0.0,
         "current_speed_mbs": 0.0,
         "current_iops": 0.0,
+        "elapsed_seconds": 0.0,
         "results": {}
     }
 

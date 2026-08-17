@@ -44,7 +44,16 @@ PowerShellで展開先フォルダへ移動してから、`QuickDiskBench_cli.ex
 - `cd I:\path\to\QuickDiskBench-binary`
 - `.\QuickDiskBench_cli.exe --drive D:\ --size 512 --passes 3`
 - `.\QuickDiskBench_cli.exe --drive D:\ --raw --csv result.csv`
+- `.\QuickDiskBench_cli.exe --drive D:\ --size 4096 --timeout 120`
 - `.\benchmark-all-drives.ps1 -SizeMiB 256 -Passes 2`
+
+タイムアウト
+------------
+各テストのタイムアウトは既定60秒です。CLI版では `--timeout SEC` で1～3600秒の範囲に変更できます。
+4GB以上の測定や、低速・高負荷状態のドライブでWin32エラー1460（タイムアウト）が出る場合は、
+`--timeout 120` や `--timeout 180` のように値を増やして再実行してください。GUI版も既定60秒で動作します。
+全ドライブ測定スクリプトでは `-TimeoutSec 120` のように指定できます。
+GUI版では上部の「制限時間」から60 / 120 / 180 / 300 / 600秒を選択できます。I/O完了がない場合は「I/O待機中」と表示され、進捗率は完了したI/O数を基準に更新されます。測定完了後は、ドライブ情報パネルの下部に全テストの実計測時間が表示されます。
 
 `benchmark-all-drives.ps1` は認識されている固定ボリューム（SSD/HDD）を列挙し、各ドライブをCLIで測定します。
 全ドライブの測定結果を1つの集計CSVファイルとして `results` フォルダに保存します。

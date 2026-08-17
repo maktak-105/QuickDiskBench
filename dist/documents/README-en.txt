@@ -41,7 +41,16 @@ Examples:
 - `cd I:\path\to\QuickDiskBench-binary`
 - `.\QuickDiskBench_cli.exe --drive D:\ --size 512 --passes 3`
 - `.\QuickDiskBench_cli.exe --drive D:\ --raw --csv result.csv`
+- `.\QuickDiskBench_cli.exe --drive D:\ --size 4096 --timeout 120`
 - `.\benchmark-all-drives.ps1 -SizeMiB 256 -Passes 2`
+
+Timeout
+-------
+The default timeout is 60 seconds per test. The CLI accepts `--timeout SEC` from 1 to 3600 seconds.
+For 4 GiB or larger tests, or when a slow or busy drive reports Win32 error 1460 (timeout),
+retry with a larger value such as `--timeout 120` or `--timeout 180`. The GUI also uses a 60-second default.
+For the all-drives script, use `-TimeoutSec 120` to increase the timeout.
+In the GUI, select 60 / 120 / 180 / 300 / 600 seconds from the Timeout control. When no I/O completes, the status shows "Waiting for I/O" and progress is based on completed I/O operations. After the run, the drive information panel shows the total elapsed measurement time.
 
 `benchmark-all-drives.ps1` enumerates fixed volumes and benchmarks them one by one.
 All drive results are combined into one aggregate CSV file under the `results` folder.
