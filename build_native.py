@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import shutil
+import glob
 
 def find_compiler():
     # 1. Check in PATH
@@ -12,7 +13,23 @@ def find_compiler():
         if p:
             return p
             
-    # 2. Check standard installation locations in C:\
+    # 2. Check the WinGet-installed WinLibs package. WinGet may install it
+    # under the user's local package directory without adding it to PATH.
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    winget_candidates = []
+    if local_app_data:
+        winget_bin = os.path.join(
+            local_app_data,
+            "Microsoft", "WinGet", "Packages",
+            "BrechtSanders.WinLibs.MCF.UCRT_*", "mingw64", "bin"
+        )
+        winget_candidates.extend(glob.glob(os.path.join(winget_bin, "g++.exe")))
+        winget_candidates.extend(glob.glob(os.path.join(winget_bin, "clang++.exe")))
+    for c in winget_candidates:
+        if os.path.exists(c):
+            return c
+
+    # 3. Check standard installation locations in C:\
     candidates = [
         r"C:\tools\llvm-mingw\bin\clang++.exe",
         r"C:\Program Files\LLVM\bin\clang++.exe",
