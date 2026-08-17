@@ -36,6 +36,7 @@ jobs:
       - name: Build native applications
         shell: pwsh
         run: |
+          $env:PYTHONIOENCODING = 'utf-8'
           python -m pip install -r requirements.txt
           python build_native.py
           if ($LASTEXITCODE -ne 0) { throw 'Native build failed' }
