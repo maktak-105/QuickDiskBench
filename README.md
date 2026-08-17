@@ -1,6 +1,10 @@
 # QuickDiskBench
 [日本語版 README_jp.md](README_jp.md)
 
+<p align="center">
+  <img src="assets/quickdiskbench-gui-en.png" alt="QuickDiskBench English GUI" width="720">
+</p>
+
 QuickDiskBench is a Windows SSD / HDD / NVMe benchmark tool. It measures sequential and random transfer performance and IOPS using Direct I/O with the Windows OS cache bypassed.
 
 ## Using the binary release
