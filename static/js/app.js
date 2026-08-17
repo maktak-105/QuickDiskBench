@@ -45,6 +45,7 @@ const I18N = {
     opt_detecting: "検出中...",
     lbl_size: "サイズ:",
     lbl_passes: "回数:",
+    lbl_timeout: "制限時間:",
     opt_pass_1: "1 回 (高速)",
     opt_pass_3: "3 回",
     opt_pass_5: "5 回 (標準)",
@@ -61,19 +62,23 @@ const I18N = {
     status_idle: "待機中",
     status_completed: "測定完了！すべてのテストが終了しました。",
     status_stopped: "測定が停止されました。",
+    status_waiting: "I/O待機中",
     card_drive_title: "選択ドライブ情報",
+    lbl_manufacturer: "メーカー:",
+    lbl_model: "機種:",
     lbl_mount: "マウント:",
     lbl_vol_label: "ラベル:",
     lbl_fstype: "ファイルシステム:",
     lbl_total_cap: "総容量:",
     lbl_free_cap: "空き容量:",
     lbl_used_pct: "使用率:",
+    lbl_elapsed: "実計測時間:",
     card_chart_title: "リアルタイム転送速度 (MB/s)",
     modal_title: "QuickDiskBench ヘルプ & バージョン情報",
     csv_alert_empty: "測定結果がありません。ベンチマークを実行してからCSVを出力してください。",
     help_html: `
       <div class="help-box">
-        <h3>📌 アプリケーション概要 (QuickDiskBench v1.0.0)</h3>
+        <h3>📌 アプリケーション概要 (QuickDiskBench v2.1.1)</h3>
         <p>Windows Win32 Native Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) を用いて、ストレージ (NVMe SSD / SATA SSD / HDD) の限界転送速度を極限精度で測定するベンチマークソフトウェアです。</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -101,7 +106,7 @@ const I18N = {
       </div>
 
       <div class="help-footer">
-        <span>QuickDiskBench Version 1.0.0</span>
+        <span>QuickDiskBench Version 2.1.1</span>
         <span>Developer: maktak-105</span>
       </div>
     `
@@ -118,6 +123,7 @@ const I18N = {
     opt_detecting: "Detecting...",
     lbl_size: "Size:",
     lbl_passes: "Passes:",
+    lbl_timeout: "Timeout:",
     opt_pass_1: "1 Pass (Fast)",
     opt_pass_3: "3 Passes",
     opt_pass_5: "5 Passes (Default)",
@@ -134,19 +140,23 @@ const I18N = {
     status_idle: "Idle",
     status_completed: "Benchmark Completed! All tests finished successfully.",
     status_stopped: "Benchmark Stopped.",
+    status_waiting: "Waiting for I/O",
     card_drive_title: "Selected Drive Info",
+    lbl_manufacturer: "Manufacturer:",
+    lbl_model: "Model:",
     lbl_mount: "Mount:",
     lbl_vol_label: "Label:",
     lbl_fstype: "File System:",
     lbl_total_cap: "Total Capacity:",
     lbl_free_cap: "Free Space:",
     lbl_used_pct: "Used Space:",
+    lbl_elapsed: "Elapsed Time:",
     card_chart_title: "Real-time Transfer Speed (MB/s)",
     modal_title: "QuickDiskBench Help & Version Information",
     csv_alert_empty: "No benchmark results to export. Please run a benchmark test first.",
     help_html: `
       <div class="help-box">
-        <h3>📌 Overview (QuickDiskBench v1.0.0)</h3>
+        <h3>📌 Overview (QuickDiskBench v2.1.1)</h3>
         <p>A native high-performance storage benchmark application utilizing Win32 Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) to measure maximum sustained throughput and responsiveness on NVMe SSDs, SATA SSDs, and HDDs.</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -174,7 +184,7 @@ const I18N = {
       </div>
 
       <div class="help-footer">
-        <span>QuickDiskBench Version 1.0.0</span>
+        <span>QuickDiskBench Version 2.1.1</span>
         <span>Developer: maktak-105</span>
       </div>
     `
@@ -351,8 +361,8 @@ function populateDrivesSelect() {
   drivesData.forEach((drive) => {
     const opt = document.createElement('option');
     opt.value = drive.mountpoint;
-    const freeText = currentLang === 'ja' ? '空き' : 'free';
-    opt.textContent = `${drive.mountpoint} ${drive.label ? '(' + drive.label + ')' : ''} [${drive.free_gb} GB ${freeText} / ${drive.total_gb} GB]`;
+    const label = drive.label || (currentLang === 'ja' ? '(ラベルなし)' : '(No Label)');
+    opt.textContent = `${drive.mountpoint} (${label})`;
     select.appendChild(opt);
   });
 
@@ -397,6 +407,9 @@ function updateDriveInfoDisplay() {
     if (el) el.textContent = txt;
   };
 
+  const unavailable = currentLang === 'ja' ? '(取得不可)' : '(Unavailable)';
+  setTxt('info-manufacturer', drive.manufacturer || unavailable);
+  setTxt('info-model', drive.model || unavailable);
   setTxt('info-mountpoint', drive.mountpoint);
   setTxt('info-label', drive.label || (currentLang === 'ja' ? '(なし)' : '(None)'));
   setTxt('info-fstype', drive.fstype);
@@ -413,6 +426,24 @@ function updateDriveInfoDisplay() {
   }
 }
 
+// 実計測時間を読みやすい mm:ss.t / hh:mm:ss 形式に整形
+function formatElapsedSeconds(seconds) {
+  const value = Number(seconds);
+  if (!Number.isFinite(value) || value < 0) return '--:--.-';
+
+  const totalTenths = Math.round(value * 10);
+  const tenths = totalTenths % 10;
+  const totalSeconds = Math.floor(totalTenths / 10);
+  const secondsPart = totalSeconds % 60;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const minutesPart = totalMinutes % 60;
+  const hours = Math.floor(totalMinutes / 60);
+  if (hours > 0) {
+    return `${hours}:${String(minutesPart).padStart(2, '0')}:${String(secondsPart).padStart(2, '0')}`;
+  }
+  return `${String(minutesPart).padStart(2, '0')}:${String(secondsPart).padStart(2, '0')}.${tenths}`;
+}
+
 // ベンチマーク開始
 function startBenchmark() {
   const select = document.getElementById('drive-select');
@@ -420,6 +451,7 @@ function startBenchmark() {
   const sizeMb = parseInt(document.getElementById('size-select').value) || 1024;
   const profile = document.getElementById('profile-select').value || 'cdm';
   const passes = parseInt(document.getElementById('count-select').value) || 5;
+  const timeoutSec = parseInt(document.getElementById('timeout-select').value) || 60;
 
   if (!drive) {
     if (select && select.options.length > 0 && select.options[0].value) {
@@ -441,7 +473,8 @@ function startBenchmark() {
         drive: drive,
         file_size_mb: sizeMb,
         profile: profile,
-        passes: passes
+        passes: passes,
+        timeout_sec: timeoutSec
       });
       return;
     } catch (e) {
@@ -452,7 +485,7 @@ function startBenchmark() {
   fetch('/api/start', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ drive: drive, file_size_mb: sizeMb, profile: profile, passes: passes })
+    body: JSON.stringify({ drive: drive, file_size_mb: sizeMb, profile: profile, passes: passes, timeout_sec: timeoutSec })
   })
   .then(r => r.json())
   .then(data => {
@@ -514,6 +547,7 @@ function resetResultsUI() {
   setTxt('unit-rnd4kq32-write', 'MB/s (0 IOPS)');
   setTxt('unit-rnd4k-read', 'MB/s (0 IOPS)');
   setTxt('unit-rnd4k-write', 'MB/s (0 IOPS)');
+  setTxt('info-elapsed', '--:--.-');
 
   if (speedChart) {
     speedChart.data.labels = [];
@@ -530,6 +564,7 @@ function setUIRunningState(isRunning) {
   const sizeSelect = document.getElementById('size-select');
   const profileSelect = document.getElementById('profile-select');
   const countSelect = document.getElementById('count-select');
+  const timeoutSelect = document.getElementById('timeout-select');
 
   if (isRunning) {
     if (btnStart) btnStart.style.display = 'none';
@@ -538,6 +573,7 @@ function setUIRunningState(isRunning) {
     if (sizeSelect) sizeSelect.disabled = true;
     if (profileSelect) profileSelect.disabled = true;
     if (countSelect) countSelect.disabled = true;
+    if (timeoutSelect) timeoutSelect.disabled = true;
   } else {
     if (btnStart) btnStart.style.display = 'flex';
     if (btnStop) btnStop.style.display = 'none';
@@ -545,6 +581,7 @@ function setUIRunningState(isRunning) {
     if (sizeSelect) sizeSelect.disabled = false;
     if (profileSelect) profileSelect.disabled = false;
     if (countSelect) countSelect.disabled = false;
+    if (timeoutSelect) timeoutSelect.disabled = false;
     clearActiveRowHighlight();
   }
 }
@@ -581,7 +618,9 @@ function updateProgressUI(data) {
   const currentTest = data.current_test || '';
   
   let displayStatus = currentTest;
-  if (data.status === 'completed') displayStatus = dict.status_completed;
+  const ioWaiting = data.status === 'running' && (data.io_waiting || Number(data.current_speed_mbs) <= 0);
+  if (ioWaiting) displayStatus = `${currentTest} (${dict.status_waiting})`;
+  else if (data.status === 'completed') displayStatus = dict.status_completed;
   else if (data.status === 'stopped') displayStatus = dict.status_stopped;
   else if (data.status === 'idle') displayStatus = dict.status_idle;
 
@@ -592,6 +631,10 @@ function updateProgressUI(data) {
 
   setTxt('status-text', displayStatus);
   setTxt('progress-percent-text', `${data.progress_percent || 0}%`);
+
+  if (data.elapsed_seconds !== undefined) {
+    setTxt('info-elapsed', formatElapsedSeconds(data.elapsed_seconds));
+  }
   
   const pBar = document.getElementById('progress-bar-fill');
   if (pBar) pBar.style.width = `${data.progress_percent || 0}%`;
@@ -676,10 +719,11 @@ function updateProgressUI(data) {
   }
 
   // リアルタイムグラフの更新
-  if (speedChart && data.status === 'running' && data.current_speed_mbs > 0) {
+  if (speedChart && data.status === 'running' && Number.isFinite(Number(data.current_speed_mbs))) {
     const timeLabel = new Date().toLocaleTimeString();
+    const currentSpeed = Math.max(0, Number(data.current_speed_mbs));
     speedChart.data.labels.push(timeLabel);
-    speedChart.data.datasets[0].data.push(data.current_speed_mbs);
+    speedChart.data.datasets[0].data.push(currentSpeed);
 
     if (speedChart.data.labels.length > 30) {
       speedChart.data.labels.shift();
@@ -706,7 +750,7 @@ function exportCSV() {
   const now = new Date();
   const dateStr = now.toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
-  let csv = 'App,QuickDiskBench,Version,v1.0.0,Author,maktak-105\r\n';
+  let csv = 'App,QuickDiskBench,Version,v2.1.1,Author,maktak-105\r\n';
   csv += `Date,${dateStr},Target Drive,${drive},Size,${sizeMb} MB,Passes,${passes},Profile,${profile}\r\n\r\n`;
   csv += 'Test Item,Read (MB/s),Read StdDev (+-sigma),Read IOPS,Write (MB/s),Write StdDev (+-sigma),Write IOPS\r\n';
 

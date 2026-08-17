@@ -8,6 +8,7 @@ from typing import Callable, Optional, Dict, Any, List
 from core.win32_io import Win32DirectIO, AlignedBuffer, OVERLAPPED, kernel32, WAIT_OBJECT_0, ERROR_IO_PENDING
 
 SECTOR_SIZE = 4096  # 4KiB Sector
+DEFAULT_BENCHMARK_TIMEOUT_SEC = 60.0
 
 # C++ Native Engine DLL Loader
 NATIVE_DLL_PATH = os.path.join(os.path.dirname(__file__), "native", "engine_x64.dll")
@@ -30,6 +31,8 @@ if sys.platform == 'win32' and os.path.exists(NATIVE_DLL_PATH):
             ctypes.POINTER(ctypes.c_double),
             ctypes.POINTER(ctypes.c_double)
         ]
+        native_dll.set_benchmark_timeout_sec.restype = ctypes.c_int
+        native_dll.set_benchmark_timeout_sec.argtypes = [ctypes.c_double]
     except Exception as e:
         print(f"[警告] C++ ネイティブ DLL のロードに失敗しました: {e}")
         native_dll = None
@@ -37,11 +40,12 @@ if sys.platform == 'win32' and os.path.exists(NATIVE_DLL_PATH):
 import statistics
 
 class BenchmarkRunner:
-    def __init__(self, target_dir: str, file_size_mb: int = 512, profile: str = "cdm", passes: int = 1):
+    def __init__(self, target_dir: str, file_size_mb: int = 512, profile: str = "cdm", passes: int = 1, timeout_sec: float = DEFAULT_BENCHMARK_TIMEOUT_SEC):
         self.target_dir = target_dir
         self.file_size_bytes = file_size_mb * 1024 * 1024
         self.profile = profile.lower()  # "cdm" (with cache) or "raw" (without cache)
         self.passes = max(1, min(passes, 9))
+        self.timeout_sec = max(1.0, min(float(timeout_sec), 3600.0))
         self.write_through = (self.profile == "raw")
         
         # 書き込み権限テスト (C:\ 直下などは権限が必要なため TEMP ディレクトリにフォールバック)
@@ -64,6 +68,7 @@ class BenchmarkRunner:
         self.is_running = False
         self.should_stop = False
         self._stop_flag = ctypes.c_int(0)
+        self._benchmark_start_time = None
 
         self.current_status = {
             "status": "idle",
@@ -75,6 +80,7 @@ class BenchmarkRunner:
             "progress_percent": 0.0,
             "current_speed_mbs": 0.0,
             "current_iops": 0.0,
+            "elapsed_seconds": 0.0,
             "error_msg": "",
             "results": {
                 # 1. SEQ1M Q8T1
@@ -108,10 +114,17 @@ class BenchmarkRunner:
         self.should_stop = True
         self._stop_flag.value = 1
 
+    def _update_elapsed(self):
+        if self._benchmark_start_time is not None:
+            self.current_status["elapsed_seconds"] = round(
+                max(0.0, time.perf_counter() - self._benchmark_start_time), 3
+            )
+
     def run_all(self, progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None):
         self.is_running = True
         self.should_stop = False
         self._stop_flag.value = 0
+        self._benchmark_start_time = time.perf_counter()
         self.current_status["status"] = "running"
         self.current_status["error_msg"] = ""
 
@@ -148,6 +161,7 @@ class BenchmarkRunner:
             self.current_status["error_msg"] = str(e)
             self.current_status["current_test"] = f"エラー: {str(e)}"
         finally:
+            self._update_elapsed()
             self._cleanup()
             self.is_running = False
             if progress_callback:
@@ -189,12 +203,16 @@ class BenchmarkRunner:
         if not native_dll:
             return False
 
+        if native_dll.set_benchmark_timeout_sec(ctypes.c_double(self.timeout_sec)) != 0:
+            return False
+
         pass_label = f" (Pass {self.current_status.get('current_pass', 1)}/{self.passes})" if self.passes > 1 else ""
         self.current_status["current_test"] = test_name + pass_label
         out_speed = ctypes.c_double(0.0)
         out_iops = ctypes.c_double(0.0)
 
         def on_prog(name, speed, iops, pct):
+            self._update_elapsed()
             self.current_status["current_speed_mbs"] = round(speed, 2)
             self.current_status["current_iops"] = round(iops, 1)
             self.current_status["progress_percent"] = round(pct, 1)
@@ -378,7 +396,7 @@ class BenchmarkRunner:
         q_depth = 32
         total_sectors = max(1, self.file_size_bytes // block_size)
         num_ops = min(3000, total_sectors)
-        max_duration = 5.0  # 最大5秒
+        max_duration = self.timeout_sec
 
         io = Win32DirectIO(self.test_filename, direct_io=True, write_through=self.write_through, overlapped=True)
         io.open_for_write()
@@ -437,7 +455,7 @@ class BenchmarkRunner:
                 if elapsed > 0:
                     iops = completed_ops / elapsed
                     speed = (completed_ops * block_size / (1024 * 1024)) / elapsed
-                    pct = min(100.0, max(completed_ops / num_ops, elapsed / max_duration) * 100)
+                    pct = min(100.0, (completed_ops / num_ops) * 100)
                     self.current_status["current_speed_mbs"] = round(speed, 2)
                     self.current_status["current_iops"] = round(iops, 1)
                     self.current_status["progress_percent"] = round(pct, 1)
@@ -462,7 +480,7 @@ class BenchmarkRunner:
         q_depth = 32
         total_sectors = max(1, self.file_size_bytes // block_size)
         num_ops = min(3000, total_sectors)
-        max_duration = 5.0
+        max_duration = self.timeout_sec
 
         io = Win32DirectIO(self.test_filename, direct_io=True, overlapped=True)
         io.open_for_read()
@@ -519,7 +537,7 @@ class BenchmarkRunner:
                 if elapsed > 0:
                     iops = completed_ops / elapsed
                     speed = (completed_ops * block_size / (1024 * 1024)) / elapsed
-                    pct = min(100.0, max(completed_ops / num_ops, elapsed / max_duration) * 100)
+                    pct = min(100.0, (completed_ops / num_ops) * 100)
                     self.current_status["current_speed_mbs"] = round(speed, 2)
                     self.current_status["current_iops"] = round(iops, 1)
                     self.current_status["progress_percent"] = round(pct, 1)
@@ -546,7 +564,7 @@ class BenchmarkRunner:
         block_size = SECTOR_SIZE
         total_sectors = max(1, self.file_size_bytes // block_size)
         num_ops = min(2000, total_sectors)
-        max_duration = 5.0
+        max_duration = self.timeout_sec
 
         io = Win32DirectIO(self.test_filename, direct_io=True, write_through=self.write_through)
         io.open_for_write()
@@ -568,7 +586,7 @@ class BenchmarkRunner:
                 if elapsed > 0:
                     iops = completed_ops / elapsed
                     speed = (completed_ops * block_size / (1024 * 1024)) / elapsed
-                    pct = min(100.0, max((idx + 1) / num_ops, elapsed / max_duration) * 100)
+                    pct = min(100.0, ((idx + 1) / num_ops) * 100)
                     self.current_status["current_speed_mbs"] = round(speed, 2)
                     self.current_status["current_iops"] = round(iops, 1)
                     self.current_status["progress_percent"] = round(pct, 1)
@@ -588,7 +606,7 @@ class BenchmarkRunner:
         block_size = SECTOR_SIZE
         total_sectors = max(1, self.file_size_bytes // block_size)
         num_ops = min(2000, total_sectors)
-        max_duration = 5.0
+        max_duration = self.timeout_sec
 
         io = Win32DirectIO(self.test_filename, direct_io=True)
         io.open_for_read()
@@ -609,7 +627,7 @@ class BenchmarkRunner:
                 if elapsed > 0:
                     iops = completed_ops / elapsed
                     speed = (completed_ops * block_size / (1024 * 1024)) / elapsed
-                    pct = min(100.0, max((idx + 1) / num_ops, elapsed / max_duration) * 100)
+                    pct = min(100.0, ((idx + 1) / num_ops) * 100)
                     self.current_status["current_speed_mbs"] = round(speed, 2)
                     self.current_status["current_iops"] = round(iops, 1)
                     self.current_status["progress_percent"] = round(pct, 1)

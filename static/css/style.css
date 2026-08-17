@@ -283,9 +283,20 @@ select:hover, select:focus {
 /* Main Dashboard Grid */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-areas:
+    "results drive"
+    "chart chart";
   gap: 0.5rem;
   min-width: 0;
+}
+
+.benchmark-card {
+  grid-area: results;
+}
+
+.drive-details-card {
+  grid-area: drive;
 }
 
 /* Card Common */
@@ -333,8 +344,8 @@ select:hover, select:focus {
 
 .test-row {
   display: grid;
-  grid-template-columns: 140px 1fr 1fr;
-  gap: 0.4rem;
+  grid-template-columns: 128px 1fr 1fr;
+  gap: 0.3rem;
   align-items: center;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
@@ -373,6 +384,8 @@ select:hover, select:focus {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-self: end;
+  width: 82%;
   background: rgba(0, 0, 0, 0.3);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
@@ -547,6 +560,22 @@ select:hover, select:focus {
   transition: width 0.25s ease;
 }
 
+.drive-info-grid .measurement-time {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drive-info-grid .measurement-time .info-val {
+  color: var(--accent-cyan);
+  font-variant-numeric: tabular-nums;
+}
+
 .drive-info-card {
   display: flex;
   flex-direction: column;
@@ -593,9 +622,13 @@ select:hover, select:focus {
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 768px) {
+@media (max-width: 680px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "results"
+      "drive"
+      "chart";
   }
 
   .header {
@@ -650,6 +683,10 @@ select:hover, select:focus {
 
   .metric-box.write {
     grid-area: write;
+  }
+
+  .metric-box {
+    width: 100%;
   }
 }
 
