@@ -25,6 +25,14 @@ The ZIP contains all distribution files in one flat folder.
 - `README.txt` / `README-en.txt` - distribution documentation
 - `LICENSE.txt` / `LICENSE-ja.txt` - MIT License files
 
+SHA-256 of the v2.1.1 release binaries:
+
+```
+119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
+4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
+```
+
 Run `QuickDiskBench.exe` for the GUI. The language switch, CSV export, and Help buttons are stacked on the right side of the header in both Japanese and English. The Help dialog ends with the author image. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
 
 ## CLI usage

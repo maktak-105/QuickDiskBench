@@ -80,6 +80,12 @@ Distribution files
 - `LICENSE.txt` - MIT License, English original
 - `LICENSE-ja.txt` - MIT License, Japanese reference translation
 
+SHA-256
+-------
+119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
+4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
+
 License
 -------
 This software is provided under the MIT License.

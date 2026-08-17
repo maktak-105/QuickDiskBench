@@ -1,4 +1,5 @@
 # QuickDiskBench
+[English README.md](README.md)
 
 <p align="center">
   <img src="assets/quickdiskbench-gui-ja.png" alt="QuickDiskBench 日本語GUI" width="720">
@@ -23,6 +24,14 @@ ZIPを展開すると、すべての配布ファイルが同じフォルダに�
 - `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
 - `README.txt` / `README-en.txt` - 使用説明書
 - `LICENSE.txt` / `LICENSE-ja.txt` - MIT License
+
+v2.1.1 配布バイナリの SHA-256:
+
+```
+119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
+4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
+```
 
 GUI版は `QuickDiskBench.exe` を実行します。言語切替、CSV出力、ヘルプボタンはヘッダー右端に縦に並び、日本語・英語のどちらでも同じ配置です。ヘルプの末尾には作者画像が表示されます。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
 
