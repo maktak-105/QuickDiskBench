@@ -5,7 +5,9 @@ import shutil
 
 def find_compiler():
     # 1. Check in PATH
-    for comp in ["clang++", "g++"]:
+    # Prefer MinGW's g++ because the native GUI build uses MinGW-specific
+    # flags such as -mwindows. A system LLVM clang++ may target MSVC instead.
+    for comp in ["g++", "clang++"]:
         p = shutil.which(comp)
         if p:
             return p
