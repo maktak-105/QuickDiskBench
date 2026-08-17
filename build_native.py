@@ -44,17 +44,18 @@ def build():
         return False
     
     dist_dir = os.path.join(os.path.dirname(__file__), "dist")
-    os.makedirs(dist_dir, exist_ok=True)
-    os.makedirs(os.path.join(dist_dir, "templates"), exist_ok=True)
-    os.makedirs(os.path.join(dist_dir, "static", "css"), exist_ok=True)
-    os.makedirs(os.path.join(dist_dir, "static", "js"), exist_ok=True)
+    binary_dir = os.path.join(dist_dir, "binary")
+    os.makedirs(binary_dir, exist_ok=True)
+    os.makedirs(os.path.join(binary_dir, "templates"), exist_ok=True)
+    os.makedirs(os.path.join(binary_dir, "static", "css"), exist_ok=True)
+    os.makedirs(os.path.join(binary_dir, "static", "js"), exist_ok=True)
     
     import bundle_html
-    bundle_html.bundle()
+    bundle_html.bundle(binary_dir)
     
     out_dll = os.path.join(native_dir, "engine_x64.dll")
-    out_gui_exe = os.path.join(dist_dir, "QuickDiskBench.exe")
-    out_cli_exe = os.path.join(dist_dir, "QuickDiskBench_cli.exe")
+    out_gui_exe = os.path.join(binary_dir, "QuickDiskBench.exe")
+    out_cli_exe = os.path.join(binary_dir, "QuickDiskBench_cli.exe")
 
     # Compile the Windows application icon resource once and link it into the GUI.
     windres = os.path.join(os.path.dirname(compiler), "llvm-windres.exe")
@@ -86,7 +87,7 @@ def build():
     res_dll = subprocess.run(cmd_dll, capture_output=True, text=True)
     if res_dll.returncode == 0 and os.path.exists(out_dll):
         print(f"[成功] C++ ネイティブ DLL を生成しました: {out_dll} ({os.path.getsize(out_dll)} bytes)")
-        shutil.copy2(out_dll, os.path.join(dist_dir, "engine_x64.dll"))
+        shutil.copy2(out_dll, os.path.join(binary_dir, "engine_x64.dll"))
     else:
         print("[失敗] DLL ビルドに失敗しました:")
         print(res_dll.stderr)
@@ -142,13 +143,15 @@ def build():
     # 4. Copy required runtime DLL and UI assets to dist/
     wv_loader = r"C:\tools\webview2\build\native\x64\WebView2Loader.dll"
     if os.path.exists(wv_loader):
-        shutil.copy2(wv_loader, os.path.join(dist_dir, "WebView2Loader.dll"))
+        shutil.copy2(wv_loader, os.path.join(binary_dir, "WebView2Loader.dll"))
 
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "templates", "index.html"), os.path.join(dist_dir, "templates", "index.html"))
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "css", "style.css"), os.path.join(dist_dir, "static", "css", "style.css"))
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "js", "app.js"), os.path.join(dist_dir, "static", "js", "app.js"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "templates", "index.html"), os.path.join(binary_dir, "templates", "index.html"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "css", "style.css"), os.path.join(binary_dir, "static", "css", "style.css"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "js", "app.js"), os.path.join(binary_dir, "static", "js", "app.js"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "static", "js", "chart.min.js"), os.path.join(binary_dir, "static", "js", "chart.min.js"))
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "benchmark-all-drives.ps1"), os.path.join(binary_dir, "benchmark-all-drives.ps1"))
 
-    print(f"\n[完成] 配布用パッケージを dist/ フォルダに生成完了: {dist_dir}")
+    print(f"\n[完成] 配布用バイナリを dist/binary フォルダに生成完了: {binary_dir}")
     return True
 
 if __name__ == "__main__":

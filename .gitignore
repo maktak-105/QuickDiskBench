@@ -8,5 +8,5 @@ __pycache__/
 venv/
 env/
 .env
-/dist/
+/dist/binary/
 CODEX_PROJECT_NOTE.txt

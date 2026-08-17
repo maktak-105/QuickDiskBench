@@ -1,6 +1,6 @@
 import os
 
-def bundle():
+def bundle(output_dir=None):
     base_dir = os.path.dirname(__file__)
     tmpl_path = os.path.join(base_dir, "templates", "index.html")
     css_path = os.path.join(base_dir, "static", "css", "style.css")
@@ -50,7 +50,10 @@ def bundle():
 </html>
 """
 
-    dist_index = os.path.join(base_dir, "dist", "index.html")
+    if output_dir is None:
+        output_dir = os.path.join(base_dir, "dist")
+    os.makedirs(output_dir, exist_ok=True)
+    dist_index = os.path.join(output_dir, "index.html")
     with open(dist_index, "w", encoding="utf-8") as f:
         f.write(bundled)
 
