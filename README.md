@@ -10,7 +10,7 @@ Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOS
 - [QuickDiskBench v1.0.0](https://github.com/maktak-105/QuickDiskBench/releases/tag/v1.0.0)
 - [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v1.0.0/QuickDiskBench-binary.zip)
 
-ZIPを展開したら、次のファイルを同じフォルダに置いたまま使用してください。
+ZIPを展開すると、すべての配布ファイルが同じフォルダに入ります。
 
 - `QuickDiskBench.exe` - GUI版
 - `QuickDiskBench_cli.exe` - コマンドライン版
@@ -18,13 +18,14 @@ ZIPを展開したら、次のファイルを同じフォルダに置いたま�
 - `index.html` - GUI本体
 - `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
 - `README.txt` / `README-en.txt` - 使用説明書
-- `LICENSE` / `LICENSE-ja.txt` - MIT License
+- `LICENSE.txt` / `LICENSE-ja.txt` - MIT License
 
-GUI版は`QuickDiskBench.exe`を実行します。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
+GUI版は `QuickDiskBench.exe` を実行します。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
 
 ## CLIの使い方
 
 ```powershell
+cd I:\path\to\QuickDiskBench-binary
 .\QuickDiskBench_cli.exe --help
 .\QuickDiskBench_cli.exe --drive D:\ --size 512 --passes 3
 .\QuickDiskBench_cli.exe --drive D:\ --raw --csv result.csv
@@ -43,7 +44,7 @@ GUI版は`QuickDiskBench.exe`を実行します。WebView2 Runtimeがない場�
 PowerShellで配布フォルダへ移動し、カレントフォルダを示す` .\`を付けて実行します。
 
 ```powershell
-cd I:\path\to\QuickDiskBench
+cd I:\path\to\QuickDiskBench-binary
 .\benchmark-all-drives.ps1
 ```
 
@@ -79,7 +80,7 @@ python main.py
 
 ## ライセンス
 
-MIT Licenseです。英語原文は[`LICENSE`](LICENSE)、日本語参考訳は[`LICENSE-ja.txt`](LICENSE-ja.txt)を確認してください。
+MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt)を確認してください。
 
 ## 注意事項
 
