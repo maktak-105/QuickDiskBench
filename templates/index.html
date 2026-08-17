@@ -15,6 +15,7 @@
     
     <!-- Top Header -->
     <header class="header">
+      <div class="header-main">
       <div class="logo-section">
         <div class="logo-icon">
           <svg viewBox="0 0 24 24">
@@ -29,18 +30,6 @@
           <span class="logo-sub1" id="lbl-sub1" data-i18n="sub1">Win32 Unbuffered Direct I/O Benchmark Engine</span>
           <span class="logo-sub2">GitHub: maktak-105</span>
         </div>
-      </div>
-
-      <div class="header-actions">
-        <button id="btn-lang" class="btn-action" title="Toggle Language / 言語切替">
-          <span id="lang-text">🌐 English</span>
-        </button>
-        <button id="btn-csv" class="btn-action" title="Export Results to CSV / CSV出力">
-          <span data-i18n="btn_csv">📊 CSV出力</span>
-        </button>
-        <button id="btn-help" class="btn-action" title="Help & About / ヘルプ">
-          <span data-i18n="btn_help">❓ ヘルプ</span>
-        </button>
       </div>
 
       <!-- Controls -->
@@ -104,6 +93,19 @@
             <path d="M6 6h12v12H6z"/>
           </svg>
           <span data-i18n="btn_stop">停止</span>
+        </button>
+      </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-lang" class="btn-action" title="Toggle Language / 言語切替">
+          <span id="lang-text">🌐 English</span>
+        </button>
+        <button id="btn-csv" class="btn-action" title="Export Results to CSV / CSV出力">
+          <span data-i18n="btn_csv">📊 CSV出力</span>
+        </button>
+        <button id="btn-help" class="btn-action" title="Help & About / ヘルプ">
+          <span data-i18n="btn_help">❓ ヘルプ</span>
         </button>
       </div>
     </header>
@@ -321,8 +323,11 @@
         </div>
         <button class="modal-close" id="btn-modal-close">&times;</button>
       </div>
-      <div class="modal-body" id="modal-body-content">
-        <!-- Injected via i18n -->
+      <div class="modal-body">
+        <div id="modal-body-content">
+          <!-- Injected via i18n -->
+        </div>
+        <img class="help-author" src="../static/img/author.png" alt="Jûgo / @maktak105">
       </div>
     </div>
   </div>

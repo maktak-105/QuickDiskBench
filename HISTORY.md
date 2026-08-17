@@ -9,7 +9,7 @@ This file records the major changes in each public version.
 - Second digit (for example, `1.0.0` to `1.1.0`): bug fixes
 - Third digit (for example, `1.1.0` to `1.1.1`): other changes, such as documentation updates
 
-## 2.1.1 (in preparation)
+## 2.1.1 (2026-08-17)
 
 ### Distribution and build
 
@@ -19,6 +19,14 @@ This file records the major changes in each public version.
 - Split the repository root documentation into the English `README.md` and Japanese `README_jp.md`, with a link to the Japanese version at the top of the English file.
 - Updated the Windows GitHub Actions build for MinGW preference, UTF-8 logs, and Windows-specific compilation compatibility.
 - Improved CLI build failure detection and error reporting.
+- `build_native.py` now finds `windres.exe` next to the detected compiler when it is not on `PATH`.
+- `bundle_html.py` embeds relative images as data URIs so WebView2 `NavigateToString` can display them.
+
+### GUI
+
+- Stacked the language, CSV export, and Help buttons on the right side of the header in both Japanese and English.
+- Added the author image at the bottom of the Help dialog.
+- Reduced the default window height from 900 to 780 so the transfer-speed chart no longer sits above unused empty space.
 
 ### Benchmark fixes
 

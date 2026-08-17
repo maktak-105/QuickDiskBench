@@ -640,8 +640,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
         0, wc.lpszClassName,
         L"QuickDiskBench v2.1.1 - Native Storage Benchmark (Cache Modes & Statistics)",
         WS_OVERLAPPEDWINDOW,
-        // Leave enough vertical space for the results card and the chart at startup.
-        CW_USEDEFAULT, CW_USEDEFAULT, 900, 900,
+        // Hug the dashboard: header + results + chart, without leftover space under the graph.
+        CW_USEDEFAULT, CW_USEDEFAULT, 900, 780,
         NULL, NULL, hInstance, NULL
     );
     if (!g_hWnd) { LOG("[ERR] CreateWindowExW failed: %lu", GetLastError()); return 1; }

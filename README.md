@@ -25,7 +25,7 @@ The ZIP contains all distribution files in one flat folder.
 - `README.txt` / `README-en.txt` - distribution documentation
 - `LICENSE.txt` / `LICENSE-ja.txt` - MIT License files
 
-Run `QuickDiskBench.exe` for the GUI. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
+Run `QuickDiskBench.exe` for the GUI. The language switch, CSV export, and Help buttons are stacked on the right side of the header in both Japanese and English. The Help dialog ends with the author image. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
 
 ## CLI usage
 
@@ -98,7 +98,7 @@ The native build uses the MinGW-w64 C++ toolchain. The current local build was v
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
-`build_native.py` automatically searches the standard WinGet package location, so adding it to `PATH` is not required for the project build. Add the package's `mingw64\bin` directory to the **user** `PATH` if you also want to invoke `g++` and `windres` directly. With the standard WinGet installation, it is usually:
+`build_native.py` automatically searches the standard WinGet package location and also looks for `windres.exe` next to the detected compiler, so adding MinGW to `PATH` is not required for the project build. Add the package's `mingw64\bin` directory to the **user** `PATH` if you also want to invoke `g++` and `windres` directly. With the standard WinGet installation, it is usually:
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin

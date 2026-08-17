@@ -24,7 +24,7 @@ ZIPを展開すると、すべての配布ファイルが同じフォルダに�
 - `README.txt` / `README-en.txt` - 使用説明書
 - `LICENSE.txt` / `LICENSE-ja.txt` - MIT License
 
-GUI版は `QuickDiskBench.exe` を実行します。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
+GUI版は `QuickDiskBench.exe` を実行します。言語切替、CSV出力、ヘルプボタンはヘッダー右端に縦に並び、日本語・英語のどちらでも同じ配置です。ヘルプの末尾には作者画像が表示されます。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
 
 ## CLIの使い方
 
@@ -98,7 +98,7 @@ python main.py
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
-`build_native.py`は標準的なWinGetパッケージの場所を自動検索するため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+`build_native.py`は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの`windres.exe`も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
