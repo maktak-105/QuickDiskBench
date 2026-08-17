@@ -150,7 +150,14 @@ def build():
         return False
 
     # 4. Copy required runtime DLL and UI assets to dist/
-    wv_loader = r"C:\tools\webview2\build\native\x64\WebView2Loader.dll"
+    # Prefer the loader shipped with the same WebView2 SDK as the headers.
+    # This is required on GitHub Actions, where the SDK is downloaded to a
+    # temporary directory instead of C:\tools\webview2.
+    wv_loader = os.environ.get("WEBVIEW2_LOADER")
+    if not wv_loader:
+        wv_loader = os.path.join(os.path.dirname(webview_include), "x64", "WebView2Loader.dll")
+    if not os.path.exists(wv_loader):
+        wv_loader = r"C:\tools\webview2\build\native\x64\WebView2Loader.dll"
     if os.path.exists(wv_loader):
         shutil.copy2(wv_loader, os.path.join(binary_dir, "WebView2Loader.dll"))
 
