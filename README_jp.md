@@ -90,6 +90,32 @@ python main.py
 
 ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
 
+### ネイティブ版ビルドに必要なもの
+
+ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。今回のローカルビルドでは、WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`、バージョン`16.1.0-14.0.0-r1`で確認しています。
+
+```powershell
+winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
+```
+
+パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+
+```text
+%LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
+```
+
+ビルド前にコンパイラとリソースコンパイラを確認します。
+
+```powershell
+g++ --version
+windres --version
+python build_native.py
+```
+
+PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持するため、コンパイラが見つからないと表示される場合があります。`build_native.py`は`g++`を優先し、見つからない場合に`clang++`を探します。
+
+WebView2 SDKのヘッダーは、既定では`C:\tools\webview2\build\native\include`にあるものとして扱います。別の場所にインストールした場合は`WEBVIEW2_INCLUDE`を設定してください。
+
 ## ライセンス
 
 MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt)を確認してください。
