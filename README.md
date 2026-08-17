@@ -1,87 +1,105 @@
 # QuickDiskBench
+[日本語版 README_jp.md](README_jp.md)
 
-Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOSキャッシュを常にバイパスしたDirect I/Oで、シーケンシャルおよびランダムアクセスの速度とIOPSを測定します。
+QuickDiskBench is a Windows SSD / HDD / NVMe benchmark tool. It measures sequential and random transfer performance and IOPS using Direct I/O with the Windows OS cache bypassed.
 
-## 配布版を使う
+## Using the binary release
 
-ソースコードやPython環境がない場合は、GitHub Releasesから配布用ZIPをダウンロードしてください。
+If you do not need the source code or Python environment, download the distribution ZIP from GitHub Releases.
 
-- [最新版の配布ページ](https://github.com/maktak-105/QuickDiskBench/releases)
-- [QuickDiskBench v1.0.0](https://github.com/maktak-105/QuickDiskBench/releases/tag/v1.0.0)
-- [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v1.0.0/QuickDiskBench-binary.zip)
+- [Latest releases](https://github.com/maktak-105/QuickDiskBench/releases)
+- [QuickDiskBench v2.1.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.1.1)
+- [Direct download of QuickDiskBench-binary.zip](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.1.1/QuickDiskBench-binary.zip)
 
-ZIPを展開すると、すべての配布ファイルが同じフォルダに入ります。
+The ZIP contains all distribution files in one flat folder.
 
-- `QuickDiskBench.exe` - GUI版
-- `QuickDiskBench_cli.exe` - コマンドライン版
-- `WebView2Loader.dll` - WebView2接続用ローダー
-- `index.html` - GUI本体
-- `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
-- `README.txt` / `README-en.txt` - 使用説明書
-- `LICENSE.txt` / `LICENSE-ja.txt` - MIT License
+- `QuickDiskBench.exe` - GUI version
+- `QuickDiskBench_cli.exe` - command-line version
+- `WebView2Loader.dll` - WebView2 loader
+- `index.html` - GUI content
+- `benchmark-all-drives.ps1` - script for benchmarking all fixed volumes
+- `README.txt` / `README-en.txt` - distribution documentation
+- `LICENSE.txt` / `LICENSE-ja.txt` - MIT License files
 
-GUI版は `QuickDiskBench.exe` を実行します。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
+Run `QuickDiskBench.exe` for the GUI. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
 
-## CLIの使い方
+## CLI usage
 
 ```powershell
 cd I:\path\to\QuickDiskBench-binary
 .\QuickDiskBench_cli.exe --help
 .\QuickDiskBench_cli.exe --drive D:\ --size 512 --passes 3
 .\QuickDiskBench_cli.exe --drive D:\ --raw --csv result.csv
+.\QuickDiskBench_cli.exe --drive D:\ --size 4096 --timeout 120
 ```
 
-主なオプション：
+Main options:
 
-- `--drive PATH` - 測定先（例：`C:\`）
-- `--size MiB` - 一時測定ファイルのサイズ。最小64 MiB、既定256 MiB
-- `--passes N` - 各テストの反復回数（1～9）
-- `--raw` - Write-Throughを追加し、デバイス側書き込みキャッシュの影響を抑制
-- `--csv PATH` - 結果サマリーをCSV保存
+- `--drive PATH` - target location, for example `C:\`
+- `--size MiB` - temporary test-file size; minimum 64 MiB, default 256 MiB
+- `--passes N` - number of repetitions for each test (1-9)
+- `--timeout SEC` - per-test timeout; default 60 seconds, range 1-3600
+- `--raw` - add Write-Through to reduce the effect of device-side write caching
+- `--csv PATH` - save the result summary as CSV
 
-## 全ドライブを測定する
+The default timeout is 60 seconds per test. For 4 GiB or larger tests, or when a slow or busy drive reports Win32 error 1460 (timeout), retry with a larger value such as `--timeout 120` or `--timeout 180`.
 
-PowerShellで配布フォルダへ移動し、カレントフォルダを示す` .\`を付けて実行します。
+The GUI provides the same timeout choices in its `Timeout` control: 60, 120, 180, 300, or 600 seconds. When no I/O completes, it displays `Waiting for I/O`; progress is based on completed I/O operations rather than elapsed time, and the chart shows the waiting period as 0 MB/s. After the run, the drive information panel shows the total elapsed measurement time.
+
+## Benchmark all drives
+
+Open PowerShell in the distribution folder and run:
 
 ```powershell
 cd I:\path\to\QuickDiskBench-binary
 .\benchmark-all-drives.ps1
 ```
 
-サイズと回数を指定する例：
+Specify size, pass count, and timeout as needed:
 
 ```powershell
 .\benchmark-all-drives.ps1 -SizeMiB 256 -Passes 2
+.\benchmark-all-drives.ps1 -SizeMiB 4096 -TimeoutSec 120
 ```
 
-実行ポリシーで拒否される場合：
+If execution policy blocks the script:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\benchmark-all-drives.ps1
 ```
 
-スクリプトは固定ボリュームを列挙し、各ドライブをCLIで測定します。全ドライブの結果は`results\summary-YYYYMMDD-HHMMSS.csv`という1つのCSVにまとめられます。書き込みテストを行うため、重要な処理を終了し、対象ドライブの空き容量を確保してから実行してください。
+The script enumerates fixed volumes and writes a combined summary to `results\summary-YYYYMMDD-HHMMSS.csv`. Close important applications and ensure sufficient free space before running write tests.
 
-## 測定モード
+## Cache modes
 
-- キャッシュあり：`FILE_FLAG_NO_BUFFERING`でWindows OSキャッシュを使わず、ストレージ側のハードウェアキャッシュは使用可能
-- キャッシュなし：OSキャッシュを使わないまま`FILE_FLAG_WRITE_THROUGH`を追加し、ハードウェアキャッシュの影響も抑制
+- With cache: `FILE_FLAG_NO_BUFFERING` bypasses the Windows OS cache while allowing device hardware cache.
+- Without cache: `FILE_FLAG_NO_BUFFERING` is combined with `FILE_FLAG_WRITE_THROUGH` to reduce the effect of device hardware cache.
 
-測定値は、ドライブの温度、空き容量、電源設定、接続方式、バックグラウンド処理、ファームウェアなどで変動します。
+Results vary with drive temperature, free space, power settings, connection method, background activity, and firmware.
 
-## ソースから起動する場合
+## Running from source
 
 ```powershell
 python -m pip install -r requirements.txt
 python main.py
 ```
 
-ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
+The binary release is recommended for normal use. Building the native version requires LLVM-MinGW for Windows and the WebView2 SDK.
 
-## ライセンス
+## License
 
-MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt)を確認してください。
+This project is provided under the MIT License. See [`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt) for the English original and [`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt) for the Japanese reference translation.
 
-## 注意事項
+## Disclaimer
 
-本ソフトウェアは現状有姿で提供されます。書き込みテスト、測定結果、データ消失、システム障害、ハードウェア故障などについて作者は責任を負いません。重要なデータは必ずバックアップしてから使用してください。
+This software is provided as-is. The author assumes no responsibility for write tests, measurement results, data loss, system failures, or hardware damage. Always back up important data before use.
+
+## Design Philosophy: Focusing on Practical Stability
+
+While standard benchmarks excel at measuring peak burst performance, real-world workloads—such as loading large local LLM models or intensive data processing—heavily rely on sustained speed and consistency.
+
+QuickDiskBench was developed to quickly diagnose drive performance under practical conditions, born from real troubleshooting with local AI environments.
+
+- **Average & Standard Deviation:** Evaluates practical throughput and stability by calculating the average speed and variance across multiple rapid runs.
+- **Direct I/O (Cache-Bypass Mode):** Bypasses OS/controller cache buffering to help observe the drive's baseline performance under continuous load.
+- **Time-Efficient Diagnostics:** Quickly provides actionable diagnostic data without prolonged wait times.

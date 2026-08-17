@@ -2,6 +2,7 @@
 param(
     [int]$SizeMiB = 256,
     [ValidateRange(1,9)][int]$Passes = 1,
+    [ValidateRange(1,3600)][int]$TimeoutSec = 60,
     [switch]$Raw,
     [string]$OutputDirectory = (Join-Path $PSScriptRoot 'results')
 )
@@ -25,7 +26,7 @@ foreach ($v in $volumes) {
     $csv = "$base.csv"
     $kind = '固定ボリューム'
     Write-Host "測定開始: $drive ($kind)"
-    $args = @('--drive', $drive, '--size', $SizeMiB, '--passes', $Passes, '--csv', $csv)
+    $args = @('--drive', $drive, '--size', $SizeMiB, '--passes', $Passes, '--timeout', $TimeoutSec, '--csv', $csv)
     if ($Raw) { $args += '--raw' }
     & $exe @args 2>&1 | Tee-Object -FilePath $log
     if ($LASTEXITCODE -ne 0) { Write-Warning "$drive の測定に失敗しました。ログ: $log"; continue }

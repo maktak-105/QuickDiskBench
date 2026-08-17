@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
+#include <cmath>
 
 // Alignment requirements for Direct I/O (4096 bytes / 4KiB)
 constexpr size_t SECTOR_SIZE = 4096;
@@ -84,6 +85,19 @@ bool preallocate_file(HANDLE hFile, uint64_t file_size) {
 }
 
 extern "C" {
+
+constexpr double DEFAULT_BENCHMARK_TIMEOUT_SEC = 60.0;
+constexpr double MIN_BENCHMARK_TIMEOUT_SEC = 1.0;
+constexpr double MAX_BENCHMARK_TIMEOUT_SEC = 3600.0;
+std::atomic<double> g_benchmark_timeout_sec{DEFAULT_BENCHMARK_TIMEOUT_SEC};
+
+__declspec(dllexport) int set_benchmark_timeout_sec(double timeout_sec) {
+    if (!std::isfinite(timeout_sec) || timeout_sec < MIN_BENCHMARK_TIMEOUT_SEC || timeout_sec > MAX_BENCHMARK_TIMEOUT_SEC) {
+        return ERROR_INVALID_PARAMETER;
+    }
+    g_benchmark_timeout_sec.store(timeout_sec);
+    return ERROR_SUCCESS;
+}
 
 __declspec(dllexport) int run_benchmark_test(
     const wchar_t* filepath,
@@ -161,6 +175,7 @@ __declspec(dllexport) int run_benchmark_test(
     uint64_t issued_ops = 0;
     uint64_t completed_ops = 0;
     uint64_t total_bytes_transferred = 0;
+    DWORD io_error = ERROR_SUCCESS;
 
     auto get_next_offset = [&](uint64_t op_index) -> uint64_t {
         if (is_random) {
@@ -178,7 +193,10 @@ __declspec(dllexport) int run_benchmark_test(
 
     PerfTimer timer;
     double last_callback_time = 0;
-    const double max_duration_sec = is_random ? 3.0 : 30.0;
+    // Use one configurable per-test timeout for both sequential and random I/O.
+    // The default is long enough for multi-GB writes on slower devices, while
+    // callers can increase it for especially slow or busy storage.
+    const double max_duration_sec = g_benchmark_timeout_sec.load();
 
     // Initial dispatch up to Queue Depth
     for (int i = 0; i < queue_depth && issued_ops < total_ops; ++i) {
@@ -198,11 +216,14 @@ __declspec(dllexport) int run_benchmark_test(
         if (res || GetLastError() == ERROR_IO_PENDING) {
             active_slots[i] = true;
             issued_ops++;
+        } else {
+            io_error = GetLastError();
+            break;
         }
     }
 
     // Main completion loop
-    while (completed_ops < total_ops) {
+    while (completed_ops < total_ops && io_error == ERROR_SUCCESS) {
         if (stop_flag && *stop_flag != 0) {
             break;
         }
@@ -214,6 +235,10 @@ __declspec(dllexport) int run_benchmark_test(
 
         // Wait for any active I/O slot to complete
         DWORD wait_result = WaitForMultipleObjects(queue_depth, events.data(), FALSE, 50);
+        if (wait_result == WAIT_FAILED) {
+            io_error = GetLastError();
+            break;
+        }
         if (wait_result >= WAIT_OBJECT_0 && wait_result < WAIT_OBJECT_0 + queue_depth) {
             int slot = wait_result - WAIT_OBJECT_0;
             DWORD bytes_transferred = 0;
@@ -240,7 +265,17 @@ __declspec(dllexport) int run_benchmark_test(
                     if (next_res || GetLastError() == ERROR_IO_PENDING) {
                         active_slots[slot] = true;
                         issued_ops++;
+                    } else {
+                        io_error = GetLastError();
+                        break;
                     }
+                }
+            } else {
+                DWORD completion_error = GetLastError();
+                if (completion_error != ERROR_IO_INCOMPLETE) {
+                    io_error = completion_error;
+                    active_slots[slot] = false;
+                    break;
                 }
             }
         }
@@ -250,7 +285,9 @@ __declspec(dllexport) int run_benchmark_test(
         if (elapsed - last_callback_time >= 0.05 && elapsed > 0) {
             double current_speed = (total_bytes_transferred / (1024.0 * 1024.0)) / elapsed;
             double current_iops = completed_ops / elapsed;
-            double pct = std::min(100.0, std::max(static_cast<double>(completed_ops) / total_ops, elapsed / max_duration_sec) * 100.0);
+            double pct = total_ops > 0
+                ? std::min(100.0, (static_cast<double>(completed_ops) / total_ops) * 100.0)
+                : 0.0;
 
             if (callback) {
                 callback(test_name_str, current_speed, current_iops, pct);
@@ -270,6 +307,19 @@ __declspec(dllexport) int run_benchmark_test(
         }
     }
 
+    if (io_error == ERROR_SUCCESS && completed_ops < total_ops && !(stop_flag && *stop_flag != 0)) {
+        io_error = ERROR_TIMEOUT;
+    }
+    if (io_error != ERROR_SUCCESS) {
+        CancelIo(hFile);
+        for (int i = 0; i < queue_depth; ++i) {
+            if (active_slots[i]) {
+                DWORD bytes = 0;
+                GetOverlappedResult(hFile, &overlapped[i], &bytes, TRUE);
+            }
+        }
+    }
+
     double final_elapsed = timer.elapsed_sec();
     double final_speed = (final_elapsed > 0) ? ((total_bytes_transferred / (1024.0 * 1024.0)) / final_elapsed) : 0.0;
     double final_iops = (final_elapsed > 0) ? (completed_ops / final_elapsed) : 0.0;
@@ -278,7 +328,10 @@ __declspec(dllexport) int run_benchmark_test(
     if (out_iops) *out_iops = final_iops;
 
     if (callback) {
-        callback(test_name_str, final_speed, final_iops, 100.0);
+        double final_pct = (io_error == ERROR_SUCCESS)
+            ? 100.0
+            : (total_ops > 0 ? (static_cast<double>(completed_ops) / total_ops) * 100.0 : 0.0);
+        callback(test_name_str, final_speed, final_iops, final_pct);
     }
 
     // Cleanup resources
@@ -288,7 +341,7 @@ __declspec(dllexport) int run_benchmark_test(
     }
 
     CloseHandle(hFile);
-    return 0;
+    return io_error == ERROR_SUCCESS ? 0 : static_cast<int>(io_error);
 }
 
 } // extern "C"
