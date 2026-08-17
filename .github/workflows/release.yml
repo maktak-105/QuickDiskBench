@@ -44,19 +44,25 @@ jobs:
         shell: pwsh
         run: |
           $files = @(
-            'dist/QuickDiskBench.exe',
-            'dist/QuickDiskBench_cli.exe',
-            'dist/WebView2Loader.dll',
-            'dist/index.html',
-            'benchmark-all-drives.ps1',
-            'README.md',
-            'LICENSE',
-            'LICENSE-ja.txt'
+            'dist/binary/QuickDiskBench.exe',
+            'dist/binary/QuickDiskBench_cli.exe',
+            'dist/binary/WebView2Loader.dll',
+            'dist/binary/index.html',
+            'dist/binary/benchmark-all-drives.ps1',
+            'dist/documents/README.txt',
+            'dist/documents/README-en.txt',
+            'dist/documents/LICENSE.txt',
+            'dist/documents/LICENSE-ja.txt'
           )
           foreach ($file in $files) {
             if (!(Test-Path -LiteralPath $file)) { throw "Missing distribution file: $file" }
           }
-          Compress-Archive -LiteralPath $files -DestinationPath QuickDiskBench-binary.zip -Force
+          $staging = Join-Path $env:RUNNER_TEMP 'QuickDiskBench-package'
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
+          foreach ($file in $files) {
+            Copy-Item -LiteralPath $file -Destination $staging -Force
+          }
+          Compress-Archive -Path (Join-Path $staging '*') -DestinationPath (Join-Path $env:GITHUB_WORKSPACE 'QuickDiskBench-binary.zip') -Force
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
