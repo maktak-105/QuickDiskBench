@@ -1,5 +1,9 @@
 # QuickDiskBench
 
+<p align="center">
+  <img src="assets/quickdiskbench-gui-ja.png" alt="QuickDiskBench 日本語GUI" width="720">
+</p>
+
 Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOSキャッシュを常にバイパスしたDirect I/Oで、シーケンシャルおよびランダムアクセスの速度とIOPSを測定します。
 
 ## 配布版を使う
