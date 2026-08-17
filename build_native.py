@@ -141,6 +141,13 @@ def build():
     res_cli = subprocess.run(cmd_cli, capture_output=True, text=True)
     if res_cli.returncode == 0 and os.path.exists(out_cli_exe):
         print(f"[成功] コマンドライン CLI 実行ファイルを生成しました: {out_cli_exe} ({os.path.getsize(out_cli_exe)} bytes)")
+    else:
+        print("[失敗] CLI ビルドに失敗しました:")
+        if res_cli.stdout:
+            print(res_cli.stdout)
+        if res_cli.stderr:
+            print(res_cli.stderr)
+        return False
 
     # 4. Copy required runtime DLL and UI assets to dist/
     wv_loader = r"C:\tools\webview2\build\native\x64\WebView2Loader.dll"
