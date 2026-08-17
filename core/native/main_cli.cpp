@@ -8,6 +8,7 @@
 #include <cmath>
 #include <numeric>
 #include <algorithm>
+#include <cstdint>
 #include <fstream>
 
 // Import prototype from engine.cpp logic
