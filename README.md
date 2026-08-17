@@ -90,6 +90,32 @@ python main.py
 
 The binary release is recommended for normal use. Building the native version requires LLVM-MinGW for Windows and the WebView2 SDK.
 
+### Native build prerequisites
+
+The native build uses the MinGW-w64 C++ toolchain. The current local build was validated with WinLibs (MCF threads, UCRT runtime), package `BrechtSanders.WinLibs.MCF.UCRT`, version `16.1.0-14.0.0-r1`:
+
+```powershell
+winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
+```
+
+Add the package's `mingw64\bin` directory to the **user** `PATH`. With the standard WinGet installation, it is usually:
+
+```text
+%LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
+```
+
+Verify the compiler and resource compiler before building:
+
+```powershell
+g++ --version
+windres --version
+python build_native.py
+```
+
+After changing `PATH`, close and reopen the terminal or IDE. An already-open session keeps its old `PATH` and may report that the compiler is missing. `build_native.py` checks `g++` first, then `clang++`.
+
+The WebView2 SDK headers are expected at `C:\tools\webview2\build\native\include` by default. Set `WEBVIEW2_INCLUDE` if the SDK is installed elsewhere.
+
 ## License
 
 This project is provided under the MIT License. See [`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt) for the English original and [`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt) for the Japanese reference translation.
