@@ -98,7 +98,7 @@ python main.py
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
-パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+`build_native.py`は標準的なWinGetパッケージの場所を自動検索するため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
@@ -112,7 +112,7 @@ windres --version
 python build_native.py
 ```
 
-PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持するため、コンパイラが見つからないと表示される場合があります。`build_native.py`は`g++`を優先し、見つからない場合に`clang++`を探します。
+PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持します。ただし、`build_native.py`はWinGetの場所を直接検索するため、ビルド自体には再起動は必要ありません。`g++`を優先し、見つからない場合に`clang++`を探します。
 
 WebView2 SDKのヘッダーは、既定では`C:\tools\webview2\build\native\include`にあるものとして扱います。別の場所にインストールした場合は`WEBVIEW2_INCLUDE`を設定してください。
 
