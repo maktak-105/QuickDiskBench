@@ -8,6 +8,18 @@
 - 2桁目の更新（例：`1.0.0`→`1.1.0`）：バグ修正
 - 3桁目の更新（例：`1.1.0`→`1.1.1`）：その他の変更（ドキュメント修正など）
 
+## 未リリース
+
+### ドキュメント
+
+- `dist/documents/README.txt`/`README-en.txt`/`LICENSE-ja.txt`を、Quickシリーズ共通の命名規則（英語版がベース名、`_jp`接尾辞、ハイフン不使用）に合わせて`readme_jp.txt`/`readme.txt`/`LICENSE_jp.txt`にリネーム。従来は英語版であるはずの`README.txt`の中身が日本語になっており、英日の役割が逆転していた。
+- 欠落していた`document/`フォルダ（`spec.md`/`spec_jp.md`、`environment.md`/`environment_jp.md`、`about.md`/`about_jp.md`）を新規作成。GitHub公開時の注意点PDFがある既存の`documents/`（複数形）フォルダとは無関係で、そちらは変更していない。
+- 存在しなかった`dist/documents/history.txt`/`history_jp.txt`を新規作成。
+- `dist/documents/readme.txt`/`readme_jp.txt`にバージョン行（`配布パッケージ v2.1.1`）を追加。
+- README.md/README_jpと`document/about.md`に、`python main.py`がネイティブ版とどう関係するか（独立したPython実装ではなく、`ctypes`経由で同じ`engine_x64.dll`をロードするFastAPIブラウザ版であること）を明記。
+- `core/native/QuickDiskBench.rc`に`VERSIONINFO`ブロックを追加し、ビルドしたexeのファイルプロパティにバージョンが表示されるようにした（従来はアイコン定義のみだった）。
+- `.github/workflows/release.yml`のパッケージ対象ファイルリストを、リネーム後の`dist/documents/`ファイル名に更新。
+
 ## 2.1.1（2026-08-17）
 
 ### 配布・ビルド

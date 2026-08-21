@@ -22,8 +22,8 @@ ZIPを展開すると、すべての配布ファイルが同じフォルダに�
 - `WebView2Loader.dll` - WebView2接続用ローダー
 - `index.html` - GUI本体
 - `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
-- `README.txt` / `README-en.txt` - 使用説明書
-- `LICENSE.txt` / `LICENSE-ja.txt` - MIT License
+- `readme.txt` / `readme_jp.txt` - 使用説明書
+- `LICENSE.txt` / `LICENSE_jp.txt` - MIT License
 
 v2.1.1 配布バイナリの SHA-256:
 
@@ -99,6 +99,8 @@ python main.py
 
 ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
 
+**`python main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`core/native/engine_x64.dll`を`ctypes`経由でロードして実行します（`core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でも`python main.py`は動作します。詳細は[`document/about_jp.md`](document/about_jp.md)を参照してください。
+
 ### ネイティブ版ビルドに必要なもの
 
 ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。今回のローカルビルドでは、WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`、バージョン`16.1.0-14.0.0-r1`で確認しています。
@@ -127,7 +129,7 @@ WebView2 SDKのヘッダーは、既定では`C:\tools\webview2\build\native\inc
 
 ## ライセンス
 
-MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt)を確認してください。
+MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE_jp.txt`](dist/documents/LICENSE_jp.txt)を確認してください。
 
 ## 注意事項
 
