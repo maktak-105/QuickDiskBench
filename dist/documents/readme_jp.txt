@@ -1,4 +1,5 @@
 QuickDiskBench - 配布用 README
+配布パッケージ  v2.1.1
 
 QuickDiskBench は、Windows向けの高速ディスクベンチマークツールです。
 Windows OSキャッシュをバイパスしたDirect I/O測定に対応し、ストレージ側のハードウェアキャッシュを使用するモードと、その影響を抑えるモードを選択できます。
@@ -80,10 +81,10 @@ PowerShellではカレントフォルダのスクリプトを実行するため�
 - `WebView2Loader.dll` - WebView2ローダー
 - `index.html` - GUIに使用するUI
 - `benchmark-all-drives.ps1` - 全固定ドライブを検出してCLI測定するスクリプト
-- `README.txt` - この配布ファイルの説明書
-- `README-en.txt` - 英語版の配布ファイル説明書
+- `readme_jp.txt` - この配布ファイルの説明書
+- `readme.txt` - 英語版の配布ファイル説明書
 - `LICENSE.txt` - MIT License英語原文
-- `LICENSE-ja.txt` - MIT License日本語参考訳
+- `LICENSE_jp.txt` - MIT License日本語参考訳
 
 SHA-256
 -------
@@ -94,7 +95,7 @@ A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader
 ライセンス
 ----------
 このソフトウェアのソースコードはMIT Licenseで提供されます。MIT Licenseの全文は、
-同梱の `LICENSE.txt`（英語原文）または `LICENSE-ja.txt`（日本語参考訳）を確認してください。
+同梱の `LICENSE.txt`（英語原文）または `LICENSE_jp.txt`（日本語参考訳）を確認してください。
 
 免責事項
 --------

@@ -1,0 +1,19 @@
+QuickDiskBench - Change log
+
+v2.1.1 (2026-08-17)
+- Organized distribution files under dist/binary and documentation/licenses under dist/documents, with a flat (no-subfolder) release ZIP layout.
+- Stacked the language, CSV export, and Help buttons on the right side of the header; added the author image to the Help dialog.
+- Reduced the default window height from 900 to 780.
+- Fixed asynchronous RND4K I/O failures, wait failures, and timeouts being treated as successful measurements.
+- Increased the random-I/O safety timeout from 3 to 60 seconds to reduce false 0.00 results on slow or busy drives.
+- Unified the default timeout at 60 seconds for every test, extendable up to 3600 seconds via --timeout / -TimeoutSec.
+- Added GUI timeout choices (60/120/180/300/600s), an I/O-waiting status, and progress based on completed I/O operations.
+- Added drive manufacturer/model and total elapsed measurement time to the GUI drive info panel.
+
+v1.0.0 (2026-08-16)
+- Initial QuickDiskBench public release: Windows GUI and CLI versions.
+- Direct I/O benchmarking bypassing the OS cache; sequential, RND4K Q32T1, and RND4K Q1T1 speed/IOPS measurements.
+- Pass-count selection, write-through mode, CSV export, and an all-drives measurement script.
+- Binary distribution ZIP packaging for GitHub Releases.
+
+See HISTORY.md in the repository for full developer-facing details.

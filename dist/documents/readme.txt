@@ -1,4 +1,5 @@
 QuickDiskBench - Distribution README
+Distribution package  v2.1.1
 
 QuickDiskBench is a Windows disk benchmark tool for SSDs and HDDs.
 It supports Direct I/O measurements that bypass the Windows OS cache, with modes that either allow or reduce the effect of storage-device hardware caching.
@@ -75,10 +76,10 @@ Distribution files
 - `WebView2Loader.dll` - WebView2 loader
 - `index.html` - GUI content
 - `benchmark-all-drives.ps1` - script for benchmarking all fixed volumes
-- `README.txt` - Japanese distribution README
-- `README-en.txt` - English distribution README
+- `readme.txt` - this file (English)
+- `readme_jp.txt` - Japanese distribution README
 - `LICENSE.txt` - MIT License, English original
-- `LICENSE-ja.txt` - MIT License, Japanese reference translation
+- `LICENSE_jp.txt` - MIT License, Japanese reference translation
 
 SHA-256
 -------
@@ -89,7 +90,7 @@ A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader
 License
 -------
 This software is provided under the MIT License.
-See `LICENSE.txt` for the original license text and `LICENSE-ja.txt` for a Japanese reference translation.
+See `LICENSE.txt` for the original license text and `LICENSE_jp.txt` for a Japanese reference translation.
 
 Disclaimer
 ----------

@@ -9,6 +9,18 @@ This file records the major changes in each public version.
 - Second digit (for example, `1.0.0` to `1.1.0`): bug fixes
 - Third digit (for example, `1.1.0` to `1.1.1`): other changes, such as documentation updates
 
+## Unreleased
+
+### Documentation
+
+- Renamed `dist/documents/README.txt`/`README-en.txt`/`LICENSE-ja.txt` to `readme_jp.txt`/`readme.txt`/`LICENSE_jp.txt` to match the Quick-series naming convention (English base name, `_jp` suffix, no hyphens) — the previous names had the English/Japanese roles reversed (`README.txt` contained Japanese text).
+- Added the missing `document/` folder (`spec.md`/`spec_jp.md`, `environment.md`/`environment_jp.md`, `about.md`/`about_jp.md`); the existing `documents/` (plural) folder with the GitHub-publishing notes PDF is unrelated and untouched.
+- Added `dist/documents/history.txt`/`history_jp.txt` (previously missing).
+- Added a version line to `dist/documents/readme.txt`/`readme_jp.txt` (`Distribution package v2.1.1`).
+- Documented in README.md/README_jp.md and `document/about.md` how `python main.py` relates to the native build: it's a FastAPI browser UI that loads the same `engine_x64.dll` via `ctypes`, not an independent Python implementation.
+- Added a `VERSIONINFO` block to `core/native/QuickDiskBench.rc` so the built exe's file properties show a version (previously only the icon was defined).
+- Updated `.github/workflows/release.yml`'s packaged file list to the renamed `dist/documents/` files.
+
 ## 2.1.1 (2026-08-17)
 
 ### Distribution and build

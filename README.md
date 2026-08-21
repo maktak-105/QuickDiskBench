@@ -22,8 +22,8 @@ The ZIP contains all distribution files in one flat folder.
 - `WebView2Loader.dll` - WebView2 loader
 - `index.html` - GUI content
 - `benchmark-all-drives.ps1` - script for benchmarking all fixed volumes
-- `README.txt` / `README-en.txt` - distribution documentation
-- `LICENSE.txt` / `LICENSE-ja.txt` - MIT License files
+- `readme.txt` / `readme_jp.txt` - distribution documentation
+- `LICENSE.txt` / `LICENSE_jp.txt` - MIT License files
 
 SHA-256 of the v2.1.1 release binaries:
 
@@ -98,6 +98,8 @@ python main.py
 
 The binary release is recommended for normal use. Building the native version requires LLVM-MinGW for Windows and the WebView2 SDK.
 
+**Note on `python main.py`**: this is not a separate, independent Python implementation. It's a FastAPI server that serves the same UI in a browser, and for the actual measurement it loads `core/native/engine_x64.dll` (the same C++ engine as the shipped `QuickDiskBench.exe`) via `ctypes` (see `core/benchmark.py`). It only falls back to a pure-Python I/O implementation when that DLL hasn't been built yet, so `python main.py` still works before you build the native version. See [`document/about.md`](document/about.md) for details.
+
 ### Native build prerequisites
 
 The native build uses the MinGW-w64 C++ toolchain. The current local build was validated with WinLibs (MCF threads, UCRT runtime), package `BrechtSanders.WinLibs.MCF.UCRT`, version `16.1.0-14.0.0-r1`:
@@ -126,7 +128,7 @@ The WebView2 SDK headers are expected at `C:\tools\webview2\build\native\include
 
 ## License
 
-This project is provided under the MIT License. See [`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt) for the English original and [`dist/documents/LICENSE-ja.txt`](dist/documents/LICENSE-ja.txt) for the Japanese reference translation.
+This project is provided under the MIT License. See [`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt) for the English original and [`dist/documents/LICENSE_jp.txt`](dist/documents/LICENSE_jp.txt) for the Japanese reference translation.
 
 ## Disclaimer
 
