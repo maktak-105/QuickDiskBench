@@ -6,7 +6,7 @@
 
 - Windows 10 / 11 (64-bit)
 - Microsoft Edge WebView2 Runtime (runtime)
-- Python 3.11+ (for running `python main.py` from source, and for build scripts)
+- Python 3.11+ (for running `python python/browser/main.py` from source, and for build scripts)
 
 ## Setup
 
@@ -40,7 +40,7 @@ Default search path: `C:\tools\webview2\build\native\include`. Set
 
 ```powershell
 python -m pip install -r requirements.txt
-python main.py
+python python/browser/main.py
 ```
 
 This serves the same UI (`templates/index.html`) via FastAPI in a

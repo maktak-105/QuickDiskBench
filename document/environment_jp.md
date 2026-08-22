@@ -6,7 +6,7 @@
 
 - Windows 10 / 11（64bit）
 - Microsoft Edge WebView2 Runtime（実行時）
-- Python 3.11+（`python main.py`をソースから実行する場合、およびビルドスクリプト用）
+- Python 3.11+（`python python/browser/main.py`をソースから実行する場合、およびビルドスクリプト用）
 
 ## セットアップ
 
@@ -39,7 +39,7 @@ NuGetパッケージ`Microsoft.Web.WebView2`を展開し、ヘッダーを配置
 
 ```powershell
 python -m pip install -r requirements.txt
-python main.py
+python python/browser/main.py
 ```
 
 ネイティブ版と同じUI（`templates/index.html`）をFastAPI経由でブラウザに表示します。

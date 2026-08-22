@@ -11,7 +11,7 @@
 - **配布形態**: GitHub Releases の ZIP（フラット構成）
 - **バージョン**: v2.1.1
 
-`python/main.py`は独立したPython試作品ではなく、`core/native/engine_x64.dll`（製品版と同じC++エンジン）を`ctypes`経由でロードするFastAPIブラウザ版。DLL未ビルド時のみ純Python実装にフォールバックする。詳細は[`about_jp.md`](about_jp.md)参照。
+`python/browser/main.py`は独立したPython試作品ではなく、`core/native/engine_x64.dll`（製品版と同じC++エンジン）を`ctypes`経由でロードするFastAPIブラウザ版。DLL未ビルド時のみ純Python実装にフォールバックする。詳細は[`about_jp.md`](about_jp.md)参照。
 
 ## 2. アーキテクチャ
 
@@ -19,7 +19,7 @@
 [HTML/CSS/JS (WebView2)]  ←WebMessage(JSON)→  [webview_main.cpp]  ←直接呼出→  [engine.cpp]
 ```
 
-- `engine.cpp` / `engine_x64.dll`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版・`python/main.py`（ctypes経由）からも同じエンジンを呼ぶ
+- `engine.cpp` / `engine_x64.dll`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版・`python/browser/main.py`（ctypes経由）からも同じエンジンを呼ぶ
 - `webview_main.cpp`: Win32ウィンドウ生成、WebView2初期化、JSONメッセージの受け渡し
 - フロントエンド: フレームワーク非依存。`bundle_html.py`で1枚のHTMLへバンドル
 

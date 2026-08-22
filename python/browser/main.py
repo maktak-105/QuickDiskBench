@@ -7,13 +7,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from core.drive_manager import get_drive_list
 from core.benchmark import BenchmarkRunner
 
 app = FastAPI(title="QuickDiskBench Benchmark API")
 
-# 静的ファイル & テンプレートの設定
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# 静的ファイル & テンプレートはリポジトリ直下。このファイルは python/browser/main.py。
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 

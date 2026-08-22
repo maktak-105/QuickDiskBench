@@ -11,7 +11,7 @@
 - **Distribution**: GitHub Releases ZIP (flat layout)
 - **Version**: v2.1.1
 
-`python/main.py` is not an independent Python prototype; it's a FastAPI
+`python/browser/main.py` is not an independent Python prototype; it's a FastAPI
 browser version that loads `core/native/engine_x64.dll` (the same C++
 engine as the shipped app) via `ctypes`, falling back to a pure-Python
 implementation only when that DLL isn't built. See [`about.md`](about.md)
@@ -23,7 +23,7 @@ for details.
 [HTML/CSS/JS (WebView2)]  <-WebMessage(JSON)->  [webview_main.cpp]  <-direct call->  [engine.cpp]
 ```
 
-- `engine.cpp` / `engine_x64.dll`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, shared by the CLI build and `python/main.py` (via `ctypes`).
+- `engine.cpp` / `engine_x64.dll`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, shared by the CLI build and `python/browser/main.py` (via `ctypes`).
 - `webview_main.cpp`: creates the Win32 window, initializes WebView2, relays JSON messages.
 - Frontend: framework-free, bundled into one HTML by `bundle_html.py`.
 
