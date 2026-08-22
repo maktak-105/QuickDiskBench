@@ -1,0 +1,4 @@
+# Shipped product is C++ / WebView2. The FastAPI browser UI is optional and
+# not the distributed app; exclude it from GitHub Linguist language stats.
+main.py linguist-vendored
+core/*.py linguist-vendored
