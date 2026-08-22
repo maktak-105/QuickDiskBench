@@ -24,15 +24,15 @@ framework-free.
 
 ## Status: how the Python and C++ versions relate
 
-Unlike some other Quick-series apps, `python/main.py` is **not** an
+Unlike some other Quick-series apps, `python/browser/main.py` is **not** an
 independent prototype implementation. It is a FastAPI server that serves
 the same `templates/index.html` UI in a browser and, for the actual disk
 I/O measurement, loads `core/native/engine_x64.dll` (the same C++ engine
 built for the native app) via `ctypes` — see `core/benchmark.py`. If that
 DLL is not present, it falls back to a pure-Python implementation
-(`core/win32_io.py`'s `Win32DirectIO`) so `python main.py` still runs
+(`python/browser/core/win32_io.py`'s `Win32DirectIO`) so `python python/browser/main.py` still runs
 without a native build. The shipped product is `QuickDiskBench.exe`
-(C++17 + WebView2, statically linked); `python main.py` is a
+(C++17 + WebView2, statically linked); `python/browser/main.py` is a
 development/from-source way to run the same UI, not a separate product.
 
 ## Author

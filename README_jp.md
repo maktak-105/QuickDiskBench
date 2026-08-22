@@ -94,12 +94,12 @@ powershell -ExecutionPolicy Bypass -File .\benchmark-all-drives.ps1
 
 ```powershell
 python -m pip install -r requirements.txt
-python main.py
+python python/browser/main.py
 ```
 
 ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
 
-**`python main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`core/native/engine_x64.dll`を`ctypes`経由でロードして実行します（`core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でも`python main.py`は動作します。詳細は[`document/about_jp.md`](document/about_jp.md)を参照してください。
+**`python python/browser/main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`core/native/engine_x64.dll`を`ctypes`経由でロードして実行します（`python/browser/core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でもブラウザUIは動作します。詳細は[`document/about_jp.md`](document/about_jp.md)を参照してください。
 
 ### ネイティブ版ビルドに必要なもの
 

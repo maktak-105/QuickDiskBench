@@ -93,12 +93,12 @@ Results vary with drive temperature, free space, power settings, connection meth
 
 ```powershell
 python -m pip install -r requirements.txt
-python main.py
+python python/browser/main.py
 ```
 
 The binary release is recommended for normal use. Building the native version requires LLVM-MinGW for Windows and the WebView2 SDK.
 
-**Note on `python main.py`**: this is not a separate, independent Python implementation. It's a FastAPI server that serves the same UI in a browser, and for the actual measurement it loads `core/native/engine_x64.dll` (the same C++ engine as the shipped `QuickDiskBench.exe`) via `ctypes` (see `core/benchmark.py`). It only falls back to a pure-Python I/O implementation when that DLL hasn't been built yet, so `python main.py` still works before you build the native version. See [`document/about.md`](document/about.md) for details.
+**Note on `python python/browser/main.py`**: this is not a separate, independent Python implementation. It's a FastAPI server that serves the same UI in a browser, and for the actual measurement it loads `core/native/engine_x64.dll` (the same C++ engine as the shipped `QuickDiskBench.exe`) via `ctypes` (see `python/browser/core/benchmark.py`). It only falls back to a pure-Python I/O implementation when that DLL hasn't been built yet, so the browser UI still works before you build the native version. See [`document/about.md`](document/about.md) for details.
 
 ### Native build prerequisites
 

@@ -11,7 +11,8 @@ SECTOR_SIZE = 4096  # 4KiB Sector
 DEFAULT_BENCHMARK_TIMEOUT_SEC = 60.0
 
 # C++ Native Engine DLL Loader
-NATIVE_DLL_PATH = os.path.join(os.path.dirname(__file__), "native", "engine_x64.dll")
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+NATIVE_DLL_PATH = os.path.join(_REPO_ROOT, "core", "native", "engine_x64.dll")
 native_dll = None
 PROGRESS_CALLBACK_TYPE = ctypes.CFUNCTYPE(None, ctypes.c_char_p, ctypes.c_double, ctypes.c_double, ctypes.c_double)
 
