@@ -25,7 +25,7 @@ This file records the major changes in each public version.
 - Split the Help dialog's author badge out of the version-info tag into its own dialog, matching the other Quick-series apps.
 - Moved the Help dialog's "Version Info" button from the bottom of the body to the top.
 - Reordered the toolbar from "pass count -> timeout" to "timeout -> pass count" to improve control wrapping at the default window width.
-- Reduced the benchmark result READ/WRITE value boxes from 82% to 66% width, removing the gap next to the test-name column.
+- Fixed the benchmark result test-name column at 140px so the READ/WRITE value boxes fill the remaining space evenly with no gap.
 - Reduced the default window width from 900 to 720.
 
 ## 2.1.1 (2026-08-17)

@@ -29,7 +29,7 @@ for details.
 
 | Area | Content |
 | --- | --- |
-| Header | Drive/size/pass-count/mode/timeout selection; language, CSV export, and Help buttons stacked on the right |
+| Header | Mode/drive/size/timeout/pass-count selection; language, CSV export, and Help buttons stacked on the right |
 | Main | Transfer-speed chart, drive info panel (manufacturer/model, total elapsed time) |
 | Status | Progress based on completed I/O count, "waiting for I/O" indicator |
 
