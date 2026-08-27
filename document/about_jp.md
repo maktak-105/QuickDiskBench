@@ -1,10 +1,8 @@
 # QuickDiskBench バージョン情報
 
-[English about.md](about.md)
-
 ## バージョン
 
-Ver. v2.1.1
+Ver. v2.2.1
 
 ## コンセプト
 

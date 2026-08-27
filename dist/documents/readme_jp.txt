@@ -1,5 +1,5 @@
 QuickDiskBench - 配布用 README
-配布パッケージ  v2.1.1
+配布パッケージ  v2.2.1
 
 QuickDiskBench は、Windows向けの高速ディスクベンチマークツールです。
 Windows OSキャッシュをバイパスしたDirect I/O測定に対応し、ストレージ側のハードウェアキャッシュを使用するモードと、その影響を抑えるモードを選択できます。
@@ -34,7 +34,7 @@ Windows 10でも多くの端末には導入済みですが、古い環境、LTSC
 1. 配布ZIPを展開します。
 2. `QuickDiskBench.exe` を実行します。
 3. 測定対象ドライブ、測定サイズ、回数、モード、制限時間を選択します。
-4. 言語切替、CSV出力、ヘルプはヘッダー右端の縦並びボタンから操作できます。ヘルプ末尾に作者画像があります。
+4. 言語切替、CSV出力、ヘルプはヘッダー右端の縦並びボタンから操作できます。作者ワッペンはヘルプ上部の「バージョン情報」ボタンから開く別ダイアログにあります。
 5. 測定中は対象ドライブへの負荷が高くなるため、重要な処理を終了してから実行してください。
 
 コマンドライン版は `QuickDiskBench_cli.exe` です。
@@ -88,8 +88,8 @@ PowerShellではカレントフォルダのスクリプトを実行するため�
 
 SHA-256
 -------
-119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
-4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+DEBAE326C0A9563E6A37AB76F6AC149C6C7C72B86F2EBB8485E96BFC9BA533E1  QuickDiskBench.exe
+54C40E2CB66B0B22F6ADA08252B7588D95A547D511F4AF8E35C26AA571522E95  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 
 ライセンス

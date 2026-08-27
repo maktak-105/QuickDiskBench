@@ -1,7 +1,5 @@
 # QuickDiskBench 仕様書
 
-[English spec.md](spec.md)
-
 ## 1. アプリ概要
 
 - **名称**: QuickDiskBench
@@ -9,7 +7,7 @@
 - **対象OS**: Windows 10 / 11 (64-bit)
 - **実装**: C++17 (MinGW-w64) + WebView2 + HTML/CSS/バニラJS
 - **配布形態**: GitHub Releases の ZIP（フラット構成）
-- **バージョン**: v2.1.1
+- **バージョン**: v2.2.1
 
 `python/browser/main.py`は独立したPython試作品ではなく、`core/native/engine_x64.dll`（製品版と同じC++エンジン）を`ctypes`経由でロードするFastAPIブラウザ版。DLL未ビルド時のみ純Python実装にフォールバックする。詳細は[`about_jp.md`](about_jp.md)参照。
 
