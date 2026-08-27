@@ -1,5 +1,4 @@
 # QuickDiskBench Changelog
-[日本語版 HISTORY_jp.md](HISTORY_jp.md)
 
 This file records the major changes in each public version.
 
@@ -9,7 +8,7 @@ This file records the major changes in each public version.
 - Second digit (for example, `1.0.0` to `1.1.0`): bug fixes
 - Third digit (for example, `1.1.0` to `1.1.1`): other changes, such as documentation updates
 
-## Unreleased
+## 2.2.1 (2026-08-27)
 
 ### Documentation
 
@@ -20,6 +19,14 @@ This file records the major changes in each public version.
 - Documented in README.md/README_jp.md and `document/about.md` how `python main.py` relates to the native build: it's a FastAPI browser UI that loads the same `engine_x64.dll` via `ctypes`, not an independent Python implementation.
 - Added a `VERSIONINFO` block to `core/native/QuickDiskBench.rc` so the built exe's file properties show a version (previously only the icon was defined).
 - Updated `.github/workflows/release.yml`'s packaged file list to the renamed `dist/documents/` files.
+
+### GUI
+
+- Split the Help dialog's author badge out of the version-info tag into its own dialog, matching the other Quick-series apps.
+- Moved the Help dialog's "Version Info" button from the bottom of the body to the top.
+- Reordered the toolbar from "pass count -> timeout" to "timeout -> pass count" to improve control wrapping at the default window width.
+- Fixed the benchmark result test-name column at 140px so the READ/WRITE value boxes fill the remaining space evenly with no gap.
+- Reduced the default window width from 900 to 720.
 
 ## 2.1.1 (2026-08-17)
 

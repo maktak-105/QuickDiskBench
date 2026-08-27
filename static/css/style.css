@@ -55,7 +55,7 @@ body {
 
 .app-container {
   width: 100%;
-  max-width: 860px;
+  max-width: 680px;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -78,7 +78,7 @@ body {
 }
 
 .header-main {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -355,7 +355,7 @@ select:hover, select:focus {
 
 .test-row {
   display: grid;
-  grid-template-columns: 128px 1fr 1fr;
+  grid-template-columns: 140px 1fr 1fr;
   gap: 0.3rem;
   align-items: center;
   background: rgba(255, 255, 255, 0.02);
@@ -396,7 +396,7 @@ select:hover, select:focus {
   flex-direction: column;
   align-items: flex-end;
   justify-self: end;
-  width: 82%;
+  width: 100%;
   background: rgba(0, 0, 0, 0.3);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
@@ -804,13 +804,94 @@ select:hover, select:focus {
   gap: 0.85rem;
 }
 
-.help-author {
+.about-link {
+  display: block;
+  width: 100%;
+  margin: 0.25rem 0 0;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--accent-cyan);
+  font-size: 0.76rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.about-link:hover {
+  background: rgba(0, 240, 255, 0.08);
+}
+
+.about-card {
+  max-width: 360px;
+  max-height: 90vh;
+}
+
+.about-body {
+  padding: 1.1rem 1.5rem 1rem;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.about-name {
+  margin: 0;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.about-version {
+  margin: 0.2rem 0 0;
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+}
+
+.about-divider {
+  margin: 0.6rem 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.about-heading {
+  margin: 0.4rem 0 0.15rem;
+  color: var(--accent-cyan);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.about-text {
+  margin: 0;
+  color: #d1d5db;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.about-badge {
   display: block;
   width: 160px;
   height: auto;
-  margin: 0.25rem auto 0.15rem;
+  margin: 0.7rem auto 0;
   border-radius: 50%;
   background: #fff;
+}
+
+.about-ok {
+  display: block;
+  width: 100%;
+  margin-top: 0.7rem;
+  padding: 0.45rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.about-ok:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .help-box {

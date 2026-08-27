@@ -1,5 +1,4 @@
 # QuickDiskBench
-[English README.md](README.md)
 
 <p align="center">
   <img src="assets/quickdiskbench-gui-ja.png" alt="QuickDiskBench 日本語GUI" width="720">
@@ -12,8 +11,8 @@ Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOS
 ソースコードやPython環境がない場合は、GitHub Releasesから配布用ZIPをダウンロードしてください。
 
 - [最新版の配布ページ](https://github.com/maktak-105/QuickDiskBench/releases)
-- [QuickDiskBench v2.1.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.1.1)
-- [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.1.1/QuickDiskBench-binary.zip)
+- [QuickDiskBench v2.2.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.2.1)
+- [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.2.1/QuickDiskBench-binary.zip)
 
 ZIPを展開すると、すべての配布ファイルが同じフォルダに入ります。
 
@@ -25,15 +24,15 @@ ZIPを展開すると、すべての配布ファイルが同じフォルダに�
 - `readme.txt` / `readme_jp.txt` - 使用説明書
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License
 
-v2.1.1 配布バイナリの SHA-256:
+v2.2.1 配布バイナリの SHA-256:
 
 ```
-119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
-4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+DEBAE326C0A9563E6A37AB76F6AC149C6C7C72B86F2EBB8485E96BFC9BA533E1  QuickDiskBench.exe
+54C40E2CB66B0B22F6ADA08252B7588D95A547D511F4AF8E35C26AA571522E95  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 ```
 
-GUI版は `QuickDiskBench.exe` を実行します。言語切替、CSV出力、ヘルプボタンはヘッダー右端に縦に並び、日本語・英語のどちらでも同じ配置です。ヘルプの末尾には作者画像が表示されます。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
+GUI版は `QuickDiskBench.exe` を実行します。言語切替、CSV出力、ヘルプボタンはヘッダー右端に縦に並び、日本語・英語のどちらでも同じ配置です。作者ワッペンはヘルプダイアログ上部の「バージョン情報」ボタンから開く別ダイアログに表示されます。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
 
 ## CLIの使い方
 

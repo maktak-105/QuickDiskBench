@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickDiskBench v2.1.1 - Storage Benchmark</title>
+  <title>QuickDiskBench v2.2.1 - Storage Benchmark</title>
   <link rel="stylesheet" href="./static/css/style.css">
   <link rel="stylesheet" href="../static/css/style.css">
   <script src="./static/js/chart.min.js"></script>
@@ -25,7 +25,7 @@
         <div class="logo-text">
           <div class="logo-title-row">
             <h1>QuickDiskBench</h1>
-            <span class="version-badge">v2.1.1</span>
+            <span class="version-badge">v2.2.1</span>
           </div>
           <span class="logo-sub1" id="lbl-sub1" data-i18n="sub1">Win32 Unbuffered Direct I/O Benchmark Engine</span>
           <span class="logo-sub2">GitHub: maktak-105</span>
@@ -61,16 +61,6 @@
         </div>
 
         <div class="control-group">
-          <label for="count-select" data-i18n="lbl_passes">回数:</label>
-          <select id="count-select">
-            <option value="1" data-i18n="opt_pass_1">1 回 (高速)</option>
-            <option value="3" data-i18n="opt_pass_3">3 回</option>
-            <option value="5" selected data-i18n="opt_pass_5">5 回 (標準)</option>
-            <option value="9" data-i18n="opt_pass_9">9 回 (高精度)</option>
-          </select>
-        </div>
-
-        <div class="control-group">
           <label for="timeout-select" data-i18n="lbl_timeout">制限時間:</label>
           <select id="timeout-select">
             <option value="60" selected>60 秒</option>
@@ -78,6 +68,16 @@
             <option value="180">180 秒</option>
             <option value="300">300 秒</option>
             <option value="600">600 秒</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="count-select" data-i18n="lbl_passes">回数:</label>
+          <select id="count-select">
+            <option value="1" data-i18n="opt_pass_1">1 回 (高速)</option>
+            <option value="3" data-i18n="opt_pass_3">3 回</option>
+            <option value="5" selected data-i18n="opt_pass_5">5 回 (標準)</option>
+            <option value="9" data-i18n="opt_pass_9">9 回 (高精度)</option>
           </select>
         </div>
 
@@ -313,21 +313,38 @@
 
   </div>
 
-  <!-- Help & About Modal Dialog -->
+  <!-- Help Modal Dialog -->
   <div class="modal-overlay" id="help-modal">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">
           <span>❓</span>
-          <span data-i18n="modal_title">QuickDiskBench ヘルプ & 情報</span>
+          <span data-i18n="modal_title">QuickDiskBench ヘルプ</span>
         </div>
         <button class="modal-close" id="btn-modal-close">&times;</button>
       </div>
       <div class="modal-body">
+        <button class="about-link" id="btn-about-link" type="button" data-i18n="about_link">バージョン情報</button>
         <div id="modal-body-content">
           <!-- Injected via i18n -->
         </div>
-        <img class="help-author" src="../static/img/author.png" alt="Jûgo / @maktak105">
+      </div>
+    </div>
+  </div>
+
+  <!-- About (Version Info) Modal Dialog -->
+  <div class="modal-overlay" id="about-modal">
+    <div class="modal-card about-card">
+      <div class="about-body">
+        <h2 class="about-name">QuickDiskBench</h2>
+        <p class="about-version">Ver. 2.2.1</p>
+        <hr class="about-divider">
+        <p class="about-heading" data-i18n="about_env_heading">[開発環境]</p>
+        <p class="about-text" data-i18n="about_env_body">C++17 (MinGW-w64) / Win32 API / Microsoft Edge WebView2</p>
+        <p class="about-heading" data-i18n="about_author_heading">[制作者]</p>
+        <p class="about-text">maktak-105 (GitHub: <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">https://github.com/maktak-105</a>)</p>
+        <img class="about-badge" src="../static/img/author.png" alt="Jûgo / @maktak105">
+        <button class="about-ok" id="btn-about-close" type="button">OK</button>
       </div>
     </div>
   </div>

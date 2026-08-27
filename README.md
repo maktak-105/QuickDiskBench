@@ -1,5 +1,4 @@
 # QuickDiskBench
-[日本語版 README_jp.md](README_jp.md)
 
 <p align="center">
   <img src="assets/quickdiskbench-gui-en.png" alt="QuickDiskBench English GUI" width="720">
@@ -12,8 +11,8 @@ QuickDiskBench is a Windows SSD / HDD / NVMe benchmark tool. It measures sequent
 If you do not need the source code or Python environment, download the distribution ZIP from GitHub Releases.
 
 - [Latest releases](https://github.com/maktak-105/QuickDiskBench/releases)
-- [QuickDiskBench v2.1.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.1.1)
-- [Direct download of QuickDiskBench-binary.zip](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.1.1/QuickDiskBench-binary.zip)
+- [QuickDiskBench v2.2.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.2.1)
+- [Direct download of QuickDiskBench-binary.zip](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.2.1/QuickDiskBench-binary.zip)
 
 The ZIP contains all distribution files in one flat folder.
 
@@ -25,15 +24,15 @@ The ZIP contains all distribution files in one flat folder.
 - `readme.txt` / `readme_jp.txt` - distribution documentation
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License files
 
-SHA-256 of the v2.1.1 release binaries:
+SHA-256 of the v2.2.1 release binaries:
 
 ```
-119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
-4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+DEBAE326C0A9563E6A37AB76F6AC149C6C7C72B86F2EBB8485E96BFC9BA533E1  QuickDiskBench.exe
+54C40E2CB66B0B22F6ADA08252B7588D95A547D511F4AF8E35C26AA571522E95  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 ```
 
-Run `QuickDiskBench.exe` for the GUI. The language switch, CSV export, and Help buttons are stacked on the right side of the header in both Japanese and English. The Help dialog ends with the author image. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
+Run `QuickDiskBench.exe` for the GUI. The language switch, CSV export, and Help buttons are stacked on the right side of the header in both Japanese and English. The author badge is shown in a separate Version Info dialog, opened from a button at the top of the Help dialog. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
 
 ## CLI usage
 

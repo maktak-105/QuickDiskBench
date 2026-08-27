@@ -1,7 +1,5 @@
 # QuickDiskBench Specification
 
-[日本語版 spec_jp.md](spec_jp.md)
-
 ## 1. Overview
 
 - **Name**: QuickDiskBench
@@ -9,7 +7,7 @@
 - **Target OS**: Windows 10 / 11 (64-bit)
 - **Implementation**: C++17 (MinGW-w64) + WebView2 + HTML/CSS/vanilla JS
 - **Distribution**: GitHub Releases ZIP (flat layout)
-- **Version**: v2.1.1
+- **Version**: v2.2.1
 
 `python/browser/main.py` is not an independent Python prototype; it's a FastAPI
 browser version that loads `core/native/engine_x64.dll` (the same C++
@@ -31,7 +29,7 @@ for details.
 
 | Area | Content |
 | --- | --- |
-| Header | Drive/size/pass-count/mode/timeout selection; language, CSV export, and Help buttons stacked on the right |
+| Header | Mode/drive/size/timeout/pass-count selection; language, CSV export, and Help buttons stacked on the right |
 | Main | Transfer-speed chart, drive info panel (manufacturer/model, total elapsed time) |
 | Status | Progress based on completed I/O count, "waiting for I/O" indicator |
 
