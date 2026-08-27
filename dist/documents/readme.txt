@@ -1,5 +1,5 @@
 QuickDiskBench - Distribution README
-Distribution package  v2.1.1
+Distribution package  v2.2.1
 
 QuickDiskBench is a Windows disk benchmark tool for SSDs and HDDs.
 It supports Direct I/O measurements that bypass the Windows OS cache, with modes that either allow or reduce the effect of storage-device hardware caching.
@@ -33,7 +33,7 @@ Usage
 1. Extract the distribution ZIP.
 2. Run `QuickDiskBench.exe` for the graphical interface.
 3. Select the target drive, test size, pass count, cache mode, and timeout.
-4. Use the stacked buttons on the right of the header for language, CSV export, and Help. The Help dialog ends with the author image.
+4. Use the stacked buttons on the right of the header for language, CSV export, and Help. The author badge is shown in a separate dialog opened from the "Version Info" button at the top of the Help dialog.
 5. Close important applications before testing because disk load can be high.
 
 The command-line version is `QuickDiskBench_cli.exe`.
@@ -83,8 +83,8 @@ Distribution files
 
 SHA-256
 -------
-119FD0368B0BE58160DD314CC52DDA437E84D6BA2FF3EFA3B63A6C8B9FE4A828  QuickDiskBench.exe
-4528BEFAE3FB83E81417DDAD62C9360EBE019C402B5E6B37FC03B0341E183D81  QuickDiskBench_cli.exe
+DEBAE326C0A9563E6A37AB76F6AC149C6C7C72B86F2EBB8485E96BFC9BA533E1  QuickDiskBench.exe
+54C40E2CB66B0B22F6ADA08252B7588D95A547D511F4AF8E35C26AA571522E95  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 
 License

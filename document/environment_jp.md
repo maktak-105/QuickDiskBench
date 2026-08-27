@@ -1,7 +1,5 @@
 # 開発環境
 
-[English environment.md](environment.md)
-
 ## 実行環境
 
 - Windows 10 / 11（64bit）

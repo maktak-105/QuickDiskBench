@@ -74,11 +74,15 @@ const I18N = {
     lbl_used_pct: "使用率:",
     lbl_elapsed: "実計測時間:",
     card_chart_title: "リアルタイム転送速度 (MB/s)",
-    modal_title: "QuickDiskBench ヘルプ & バージョン情報",
+    modal_title: "QuickDiskBench ヘルプ",
+    about_link: "バージョン情報",
+    about_env_heading: "[開発環境]",
+    about_env_body: "C++17 (MinGW-w64) / Win32 API / Microsoft Edge WebView2",
+    about_author_heading: "[制作者]",
     csv_alert_empty: "測定結果がありません。ベンチマークを実行してからCSVを出力してください。",
     help_html: `
       <div class="help-box">
-        <h3>📌 アプリケーション概要 (QuickDiskBench v2.1.1)</h3>
+        <h3>📌 アプリケーション概要 (QuickDiskBench v2.2.1)</h3>
         <p>Windows Win32 Native Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) を用いて、ストレージ (NVMe SSD / SATA SSD / HDD) の限界転送速度を極限精度で測定するベンチマークソフトウェアです。</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -103,11 +107,6 @@ const I18N = {
       <div class="help-box">
         <h3>📈 統計機能 (平均値 ± 標準偏差 σ)</h3>
         <p>複数回の測定 (3回/5回/9回) を指定した場合、単なる最速値ではなく、各パスの実測値から <strong>平均スループット (Mean)</strong> と <strong>ばらつき (標準偏差 ±σ)</strong> を算出して高精度に表示します。</p>
-      </div>
-
-      <div class="help-footer">
-        <span>QuickDiskBench Version 2.1.1</span>
-        <span>Developer: maktak-105</span>
       </div>
     `
   },
@@ -152,11 +151,15 @@ const I18N = {
     lbl_used_pct: "Used Space:",
     lbl_elapsed: "Elapsed Time:",
     card_chart_title: "Real-time Transfer Speed (MB/s)",
-    modal_title: "QuickDiskBench Help & Version Information",
+    modal_title: "QuickDiskBench Help",
+    about_link: "Version Info",
+    about_env_heading: "[Environment]",
+    about_env_body: "C++17 (MinGW-w64) / Win32 API / Microsoft Edge WebView2",
+    about_author_heading: "[Author]",
     csv_alert_empty: "No benchmark results to export. Please run a benchmark test first.",
     help_html: `
       <div class="help-box">
-        <h3>📌 Overview (QuickDiskBench v2.1.1)</h3>
+        <h3>📌 Overview (QuickDiskBench v2.2.1)</h3>
         <p>A native high-performance storage benchmark application utilizing Win32 Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) to measure maximum sustained throughput and responsiveness on NVMe SSDs, SATA SSDs, and HDDs.</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -181,11 +184,6 @@ const I18N = {
       <div class="help-box">
         <h3>📈 Multi-Pass Statistics (Mean ± StdDev σ)</h3>
         <p>When running multiple passes (3, 5, or 9 passes), QuickDiskBench calculates and displays the <strong>Mean Throughput</strong> along with the <strong>Standard Deviation (±σ)</strong> to capture real-world performance stability.</p>
-      </div>
-
-      <div class="help-footer">
-        <span>QuickDiskBench Version 2.1.1</span>
-        <span>Developer: maktak-105</span>
       </div>
     `
   }
@@ -260,6 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
   addEv('help-modal', 'click', (e) => {
     if (e.target.id === 'help-modal') closeHelpModal();
   });
+  addEv('btn-about-link', 'click', () => {
+    closeHelpModal();
+    openAboutModal();
+  });
+  addEv('btn-about-close', 'click', closeAboutModal);
+  addEv('about-modal', 'click', (e) => {
+    if (e.target.id === 'about-modal') closeAboutModal();
+  });
 });
 
 // 言語切替
@@ -295,6 +301,17 @@ function openHelpModal() {
 
 function closeHelpModal() {
   const modal = document.getElementById('help-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+// バージョン情報モーダル
+function openAboutModal() {
+  const modal = document.getElementById('about-modal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeAboutModal() {
+  const modal = document.getElementById('about-modal');
   if (modal) modal.classList.remove('active');
 }
 
@@ -750,7 +767,7 @@ function exportCSV() {
   const now = new Date();
   const dateStr = now.toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
-  let csv = 'App,QuickDiskBench,Version,v2.1.1,Author,maktak-105\r\n';
+  let csv = 'App,QuickDiskBench,Version,v2.2.1,Author,maktak-105\r\n';
   csv += `Date,${dateStr},Target Drive,${drive},Size,${sizeMb} MB,Passes,${passes},Profile,${profile}\r\n\r\n`;
   csv += 'Test Item,Read (MB/s),Read StdDev (+-sigma),Read IOPS,Write (MB/s),Write StdDev (+-sigma),Write IOPS\r\n';
 

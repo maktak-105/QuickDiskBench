@@ -636,12 +636,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
     if (!RegisterClassExW(&wc)) { LOG("[ERR] RegisterClassExW failed: %lu", GetLastError()); return 1; }
     LOG("[3] Window class registered");
 
+    // CreateWindowExW takes physical pixels. Without DPI scaling here, a
+    // window sized to fit the dashboard at 100% display scaling clips the
+    // bottom of the chart card at 125%/150% scaling (the WebView2 content
+    // renders at the real DPI while the requested window size does not).
+    // Scale the base 96-DPI logical size by the current system DPI so the
+    // same CSS-pixel content area is available at any scale factor.
+    typedef UINT (WINAPI *GetDpiForSystemFn)(void);
+    UINT dpi = 96;
+    HMODULE user32 = GetModuleHandleW(L"user32.dll");
+    if (user32) {
+        GetDpiForSystemFn pGetDpiForSystem = (GetDpiForSystemFn)GetProcAddress(user32, "GetDpiForSystem");
+        if (pGetDpiForSystem) {
+            UINT queried = pGetDpiForSystem();
+            if (queried > 0) dpi = queried;
+        }
+    }
+    double dpiScale = dpi / 96.0;
+    int winWidth = (int)(720 * dpiScale + 0.5);
+    int winHeight = (int)(740 * dpiScale + 0.5);
+
     g_hWnd = CreateWindowExW(
         0, wc.lpszClassName,
-        L"QuickDiskBench v2.1.1 - Native Storage Benchmark (Cache Modes & Statistics)",
+        L"QuickDiskBench v2.2.1 - Native Storage Benchmark (Cache Modes & Statistics)",
         WS_OVERLAPPEDWINDOW,
         // Hug the dashboard: header + results + chart, without leftover space under the graph.
-        CW_USEDEFAULT, CW_USEDEFAULT, 900, 780,
+        CW_USEDEFAULT, CW_USEDEFAULT, winWidth, winHeight,
         NULL, NULL, hInstance, NULL
     );
     if (!g_hWnd) { LOG("[ERR] CreateWindowExW failed: %lu", GetLastError()); return 1; }

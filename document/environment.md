@@ -1,7 +1,5 @@
 # Development Environment
 
-[日本語版 environment_jp.md](environment_jp.md)
-
 ## Runtime requirements
 
 - Windows 10 / 11 (64-bit)

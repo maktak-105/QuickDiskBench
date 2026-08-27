@@ -1,10 +1,8 @@
 # QuickDiskBench — About
 
-[日本語版 about_jp.md](about_jp.md)
-
 ## Version
 
-Ver. v2.1.1
+Ver. v2.2.1
 
 ## Concept
 

@@ -1,5 +1,12 @@
 QuickDiskBench - Change log
 
+v2.2.1 (2026-08-27)
+- Split the Help dialog's author badge out of the version-info tag into its own dialog.
+- Moved the Help dialog's "Version Info" button from the bottom of the body to the top.
+- Reordered the toolbar from "pass count -> timeout" to "timeout -> pass count".
+- Reduced the benchmark result READ/WRITE value boxes from 82% to 66% width, removing the gap next to the test-name column.
+- Reduced the default window width from 900 to 720.
+
 v2.1.1 (2026-08-17)
 - Organized distribution files under dist/binary and documentation/licenses under dist/documents, with a flat (no-subfolder) release ZIP layout.
 - Stacked the language, CSV export, and Help buttons on the right side of the header; added the author image to the Help dialog.
