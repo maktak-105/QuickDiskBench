@@ -67,7 +67,7 @@ StatResult calc_stats(const std::vector<double>& vals, const std::vector<double>
 
 void print_header() {
     std::cout << "\033[1;36m============================================================\033[0m\n";
-    std::cout << "\033[1;37m   QuickDiskBench Native C++ Benchmark Engine v2.2.1 (LLVM Clang)\033[0m\n";
+    std::cout << "\033[1;37m   QuickDiskBench Native C++ Benchmark Engine v3.0.0 (LLVM Clang)\033[0m\n";
     std::cout << "\033[1;36m============================================================\033[0m\n\n";
 }
 

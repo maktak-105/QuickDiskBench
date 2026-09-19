@@ -1,5 +1,12 @@
 QuickDiskBench - Change log
 
+v3.0.0 (2026-09-19)
+- Restructured project layout to match the latest quick-app-template (v2.0.0) standard (src/, scripts/, docs/, dist/).
+- Embedded HTML, CSS, JS, and image assets directly into the executable as an RCDATA resource. Standalone execution now runs without external index.html.
+- Migrated prototype implementation into proto/ folder.
+- Consolidated build scripts under scripts/build.bat and scripts/build.py, with flattened outputs in dist/.
+- Removed committed DLL and object binaries from Git tracking for a clean build pipeline.
+
 v2.2.1 (2026-08-27)
 - Split the Help dialog's author badge out of the version-info tag into its own dialog.
 - Moved the Help dialog's "Version Info" button from the bottom of the body to the top.

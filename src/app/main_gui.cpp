@@ -675,7 +675,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 
     g_hWnd = CreateWindowExW(
         0, wc.lpszClassName,
-        L"QuickDiskBench v2.2.1 - Native Storage Benchmark (Cache Modes & Statistics)",
+        L"QuickDiskBench v3.0.0 - Native Storage Benchmark (Cache Modes & Statistics)",
         WS_OVERLAPPEDWINDOW,
         // Hug the dashboard: header + results + chart, without leftover space under the graph.
         CW_USEDEFAULT, CW_USEDEFAULT, winWidth, winHeight,
@@ -697,10 +697,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
     size_t lastSlash = appDir.find_last_of(L"\\/");
     if (lastSlash != std::wstring::npos) appDir = appDir.substr(0, lastSlash);
 
-    // Determine HTML file path
-    std::wstring htmlFile = appDir + L"\\index.html";
-    if (GetFileAttributesW(htmlFile.c_str()) == INVALID_FILE_ATTRIBUTES) {
-        htmlFile = appDir + L"\\templates\\index.html";
     // Determine HTML content: prefer embedded RCDATA resource, fallback to external file
     std::wstring htmlContent = LoadHtmlFromResource(hInstance);
     if (!htmlContent.empty()) {
@@ -715,10 +711,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
             GetFileAttributesW(htmlFile.c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0);
         htmlContent = ReadUtf8FileToWString(htmlFile);
     }
-    LOG("[6] HTML file: %S (exists=%d)", htmlFile.c_str(),
-        GetFileAttributesW(htmlFile.c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0);
-
-    std::wstring htmlContent = ReadUtf8FileToWString(htmlFile);
     LOG("[7] htmlContent size: %zu chars", htmlContent.size());
 
     // User Data Folder — use fixed path, do NOT block main thread to clean it

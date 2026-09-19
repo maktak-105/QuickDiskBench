@@ -82,7 +82,7 @@ const I18N = {
     csv_alert_empty: "測定結果がありません。ベンチマークを実行してからCSVを出力してください。",
     help_html: `
       <div class="help-box">
-        <h3>📌 アプリケーション概要 (QuickDiskBench v2.2.1)</h3>
+        <h3>📌 アプリケーション概要 (QuickDiskBench v3.0.0)</h3>
         <p>Windows Win32 Native Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) を用いて、ストレージ (NVMe SSD / SATA SSD / HDD) の限界転送速度を極限精度で測定するベンチマークソフトウェアです。</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -159,7 +159,7 @@ const I18N = {
     csv_alert_empty: "No benchmark results to export. Please run a benchmark test first.",
     help_html: `
       <div class="help-box">
-        <h3>📌 Overview (QuickDiskBench v2.2.1)</h3>
+        <h3>📌 Overview (QuickDiskBench v3.0.0)</h3>
         <p>A native high-performance storage benchmark application utilizing Win32 Direct I/O (<code>FILE_FLAG_NO_BUFFERING</code>) to measure maximum sustained throughput and responsiveness on NVMe SSDs, SATA SSDs, and HDDs.</p>
         <p style="margin-top: 4px; color: var(--accent-cyan);"><strong>GitHub:</strong> <a href="https://github.com/maktak-105" target="_blank" style="color:var(--accent-cyan);">maktak-105</a></p>
       </div>
@@ -767,7 +767,7 @@ function exportCSV() {
   const now = new Date();
   const dateStr = now.toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
-  let csv = 'App,QuickDiskBench,Version,v2.2.1,Author,maktak-105\r\n';
+  let csv = 'App,QuickDiskBench,Version,v3.0.0,Author,maktak-105\r\n';
   csv += `Date,${dateStr},Target Drive,${drive},Size,${sizeMb} MB,Passes,${passes},Profile,${profile}\r\n\r\n`;
   csv += 'Test Item,Read (MB/s),Read StdDev (+-sigma),Read IOPS,Write (MB/s),Write StdDev (+-sigma),Write IOPS\r\n';
 

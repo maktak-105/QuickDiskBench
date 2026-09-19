@@ -8,7 +8,7 @@
 - 2桁目の更新（例：`1.0.0`→`1.1.0`）：バグ修正
 - 3桁目の更新（例：`1.1.0`→`1.1.1`）：その他の変更（ドキュメント修正など）
 
-## 未リリース（Unreleased）
+## 3.0.0（2026-09-19）
 
 ### 構成・リファクタリング
 
@@ -16,7 +16,8 @@
   - ソースコードを `src/app/`（GUI）、`src/cli/`（CLI）、`src/engine/`（コアロジック）、`src/ui/`（HTML/CSS/JS/画像）へ配置。
   - スクリプト類を `scripts/`（`build.bat`, `build.py`, `bundle_html.py`, `requirements.txt`, `benchmark-all-drives.ps1`）へ集約。
   - ドキュメントを `docs/`（開発文書）および `docs/distribution/`（配布用テキスト）へ再編成。
-- HTMLを自己完結化してEXEのリソース（RCDATA）に直接埋め込む方式に変更し、配布ZIPから外部 `index.html` を除外。
+  - 試作コードを `proto/browser/` へ分離・整備。
+- HTMLを自己完結化してEXEのリソース（RCDATA）に直接埋め込む方式に変更し、配布ZIPから外部 `index.html` を除外（単体EXE起動を実現）。
 - ビルド生成物の出力先を `dist/` 直下にフラット化し、中間生成物を `build/intermediate/` に分離。
 - コミットされていたビルド生成物（`engine_x64.dll`, `QuickDiskBench_res.o`）をGit追跡から解除。
 

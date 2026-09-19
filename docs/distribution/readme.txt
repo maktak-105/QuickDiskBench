@@ -1,5 +1,5 @@
 QuickDiskBench - Distribution README
-Distribution package  v2.2.1
+Distribution package  v3.0.0
 
 QuickDiskBench is a Windows disk benchmark tool for SSDs and HDDs.
 It supports Direct I/O measurements that bypass the Windows OS cache, with modes that either allow or reduce the effect of storage-device hardware caching.

@@ -11,26 +11,24 @@ QuickDiskBench is a Windows SSD / HDD / NVMe benchmark tool. It measures sequent
 If you do not need the source code or Python environment, download the distribution ZIP from GitHub Releases.
 
 - [Latest releases](https://github.com/maktak-105/QuickDiskBench/releases)
-- [QuickDiskBench v2.2.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.2.1)
-- [Direct download of QuickDiskBench-binary.zip](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.2.1/QuickDiskBench-binary.zip)
+- [QuickDiskBench v3.0.0](https://github.com/maktak-105/QuickDiskBench/releases/tag/v3.0.0)
+- [Direct download of QuickDiskBench-binary.zip](https://github.com/maktak-105/QuickDiskBench/releases/download/v3.0.0/QuickDiskBench-binary.zip)
 
-The ZIP contains all distribution files in one flat folder.
 The ZIP contains all distribution files in one flat folder:
 
-- `QuickDiskBench.exe` - GUI version
 - `QuickDiskBench.exe` - GUI version (self-contained embedded HTML)
 - `QuickDiskBench_cli.exe` - command-line version
 - `WebView2Loader.dll` - WebView2 loader
-- `index.html` - GUI content
 - `benchmark-all-drives.ps1` - script for benchmarking all fixed volumes
 - `readme.txt` / `readme_jp.txt` - distribution documentation
+- `history.txt` / `history_jp.txt` - update history
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License files
 
-SHA-256 of the v2.2.1 release binaries:
+SHA-256 of the v3.0.0 release binaries:
 
 ```
-E1AA79C4EAB57647F488A53929D5FEE0C904B8BF9B83E4EFCFAA0DE67E5948FA  QuickDiskBench.exe
-8053430F2278B423D1246313B7649D7429386A0A6C99E51207304905505C302D  QuickDiskBench_cli.exe
+E1B46C7F2E33395E7731CCBC247F62B44802B95E8F56D20FD9ACEFFE31FFBB01  QuickDiskBench.exe
+21EDACCC3D5F35EB575576D16A17B9B23F90CCCDF9FD49B4F4D3CB28B8362B54  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 ```
 
@@ -90,52 +88,30 @@ The script enumerates fixed volumes and writes a combined summary to `results\su
 
 Results vary with drive temperature, free space, power settings, connection method, background activity, and firmware.
 
-## Running from source
 ## Building from Source
 
- 
-```powershell
-python -m pip install -r requirements.txt
-python -m pip install -r scripts/requirements.txt
-python python/browser/main.py
-```
 The binary release is recommended for normal use. If you want to build it yourself, follow the instructions below.
-
-The binary release is recommended for normal use. Building the native version requires LLVM-MinGW for Windows and the WebView2 SDK.
-The binary release is recommended for normal use. Building the native version requires MinGW-w64 for Windows and the WebView2 SDK.
-
-**Note on `python python/browser/main.py`**: this is not a separate, independent Python implementation. It's a FastAPI server that serves the same UI in a browser, and for the actual measurement it loads `core/native/engine_x64.dll` (the same C++ engine as the shipped `QuickDiskBench.exe`) via `ctypes` (see `python/browser/core/benchmark.py`). It only falls back to a pure-Python I/O implementation when that DLL hasn't been built yet, so the browser UI still works before you build the native version. See [`document/about.md`](document/about.md) for details.
-**Note on `python python/browser/main.py`**: this is not a separate, independent Python implementation. It's a FastAPI server that serves the same UI in a browser, and for the actual measurement it loads `dist/engine_x64.dll` (the same C++ engine as the shipped `QuickDiskBench.exe`) via `ctypes` (see `python/browser/core/benchmark.py`). It only falls back to a pure-Python I/O implementation when that DLL hasn't been built yet, so the browser UI still works before you build the native version. See [`docs/about.md`](docs/about.md) for details.
 
 ### Native build prerequisites
 
-The native build uses the MinGW-w64 C++ toolchain. The current local build was validated with WinLibs (MCF threads, UCRT runtime), package `BrechtSanders.WinLibs.MCF.UCRT`, version `16.1.0-14.0.0-r1`:
 The native build uses the MinGW-w64 C++ toolchain, validated with WinLibs (MCF threads, UCRT runtime):
 
 ```powershell
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
-`build_native.py` automatically searches the standard WinGet package location and also looks for `windres.exe` next to the detected compiler, so adding MinGW to `PATH` is not required for the project build. Add the package's `mingw64\bin` directory to the **user** `PATH` if you also want to invoke `g++` and `windres` directly. With the standard WinGet installation, it is usually:
 `scripts/build.py` automatically searches the standard WinGet package location and also looks for `windres.exe` next to the detected compiler, so adding MinGW to `PATH` is not required for the project build. Add the package's `mingw64\bin` directory to the **user** `PATH` if you also want to invoke `g++` and `windres` directly. With the standard WinGet installation, it is usually:
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
 ```
 
-Verify the compiler and resource compiler before building:
 Building the application:
 
 ```powershell
-g++ --version
-windres --version
-python build_native.py
 scripts\build.bat
 # or python scripts/build.py
 ```
-
-After changing `PATH`, close and reopen the terminal or IDE. An already-open session keeps its old `PATH`; the project build itself does not depend on that restart because `build_native.py` checks the WinGet location directly. It checks `g++` first, then `clang++`.
-After changing `PATH`, close and reopen the terminal or IDE. An already-open session keeps its old `PATH`; the project build itself does not depend on that restart because `scripts/build.py` checks the WinGet location directly. It checks `g++` first, then `clang++`.
 
 The WebView2 SDK headers are expected at `C:\tools\webview2\build\native\include` by default. Set `WEBVIEW2_INCLUDE` if the SDK is installed elsewhere.
 
@@ -152,7 +128,6 @@ It is a FastAPI server that serves the same UI (`src/ui/index.html`) in a browse
 
 ## License
 
-This project is provided under the MIT License. See [`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt) for the English original and [`dist/documents/LICENSE_jp.txt`](dist/documents/LICENSE_jp.txt) for the Japanese reference translation.
 This project is provided under the MIT License. See [`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt) for the English original and [`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt) for the Japanese reference translation.
 
 ## Disclaimer

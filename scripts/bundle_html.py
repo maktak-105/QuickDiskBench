@@ -4,11 +4,6 @@ import base64
 
 
 def bundle(output_dir=None):
-    base_dir = os.path.dirname(__file__)
-    tmpl_path = os.path.join(base_dir, "templates", "index.html")
-    css_path = os.path.join(base_dir, "static", "css", "style.css")
-    chart_path = os.path.join(base_dir, "static", "js", "chart.min.js")
-    app_path = os.path.join(base_dir, "static", "js", "app.js")
     script_dir = os.path.dirname(__file__)
     repo_root = os.path.abspath(os.path.join(script_dir, ".."))
     ui_dir = os.path.join(repo_root, "src", "ui")
@@ -37,7 +32,6 @@ def bundle(output_dir=None):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickDiskBench - ディスクベンチマークダッシュボード</title>
   <title>{title}</title>
   <style>
 {css}
@@ -56,7 +50,6 @@ def bundle(output_dir=None):
     # Remove script tags that reference external files
     body_content = re.sub(r'<script.*?</script>', '', body_content, flags=re.DOTALL)
 
-    # NavigateToString は相対パスの画像を解決できないので data URI に埋め込む
     # NavigateToString cannot resolve relative image URLs; inline images as base64 data URIs
     def _inline_img(match):
         prefix, src, suffix = match.group(1), match.group(2), match.group(3)
@@ -85,7 +78,6 @@ def bundle(output_dir=None):
 """
 
     if output_dir is None:
-        output_dir = os.path.join(base_dir, "dist")
         output_dir = os.path.join(repo_root, "build", "intermediate")
     os.makedirs(output_dir, exist_ok=True)
     dist_index = os.path.join(output_dir, "index.html")

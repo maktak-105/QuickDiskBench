@@ -1,5 +1,5 @@
 QuickDiskBench - 配布用 README
-配布パッケージ  v2.2.1
+配布パッケージ  v3.0.0
 
 QuickDiskBench は、Windows向けの高速ディスクベンチマークツールです。
 Windows OSキャッシュをバイパスしたDirect I/O測定に対応し、ストレージ側のハードウェアキャッシュを使用するモードと、その影響を抑えるモードを選択できます。
