@@ -11,19 +11,27 @@
 
 `python/browser/main.py` is not an independent Python prototype; it's a FastAPI
 browser version that loads `core/native/engine_x64.dll` (the same C++
+browser version that loads `dist/engine_x64.dll` (the same C++
 engine as the shipped app) via `ctypes`, falling back to a pure-Python
 implementation only when that DLL isn't built. See [`about.md`](about.md)
 for details.
+`proto/browser/main.py` is a development and verification FastAPI browser prototype. It loads `dist/engine_x64.dll` (the same C++ engine as the shipped app) via `ctypes`, falling back to a pure-Python implementation only when that DLL is not built. See [`about.md`](about.md) for details.
 
 ## 2. Architecture
 
 ```text
 [HTML/CSS/JS (WebView2)]  <-WebMessage(JSON)->  [webview_main.cpp]  <-direct call->  [engine.cpp]
+[HTML/CSS/JS (WebView2)]  <-WebMessage(JSON)->  [main_gui.cpp]  <-direct call->  [engine.cpp]
 ```
 
 - `engine.cpp` / `engine_x64.dll`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, shared by the CLI build and `python/browser/main.py` (via `ctypes`).
 - `webview_main.cpp`: creates the Win32 window, initializes WebView2, relays JSON messages.
 - Frontend: framework-free, bundled into one HTML by `bundle_html.py`.
+- `src/engine/engine.cpp` / `dist/engine_x64.dll`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, shared by the CLI build and `python/browser/main.py` (via `ctypes`).
+- `src/engine/engine.cpp`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, shared by the CLI build.
+- `src/engine/engine.cpp`: the Direct I/O measurement core using overlapped/async I/O. GUI-independent, called directly by the CLI build and via DLL (`dist/engine_x64.dll`) by the prototype.
+- `src/app/main_gui.cpp`: creates the Win32 window, initializes WebView2, relays JSON messages.
+- Frontend: framework-free, located in `src/ui/`, bundled by `scripts/bundle_html.py` into a single self-contained HTML and embedded as an EXE resource (RCDATA).
 
 ## 3. Screen layout
 
@@ -51,6 +59,7 @@ for details.
 
 1. The user selects a drive and settings, then starts the test.
 2. `webview_main.cpp` asks the engine to run the test, forwarding progress callbacks to JS.
+2. `src/app/main_gui.cpp` asks the engine to run the test, forwarding progress callbacks to JS.
 3. Results from each test are aggregated (average, standard deviation).
 4. After all tests complete, total elapsed time is shown in the drive info panel.
 

@@ -17,6 +17,7 @@ Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOS
 ZIPを展開すると、すべての配布ファイルが同じフォルダに入ります。
 
 - `QuickDiskBench.exe` - GUI版
+- `QuickDiskBench.exe` - GUI版（自己完結HTML内蔵）
 - `QuickDiskBench_cli.exe` - コマンドライン版
 - `WebView2Loader.dll` - WebView2接続用ローダー
 - `index.html` - GUI本体
@@ -90,45 +91,69 @@ powershell -ExecutionPolicy Bypass -File .\benchmark-all-drives.ps1
 測定値は、ドライブの温度、空き容量、電源設定、接続方式、バックグラウンド処理、ファームウェアなどで変動します。
 
 ## ソースから起動する場合
+## ビルド方法
 
 ```powershell
 python -m pip install -r requirements.txt
+python -m pip install -r scripts/requirements.txt
 python python/browser/main.py
 ```
+通常の利用にはGitHub Releasesの配布ZIPを推奨します。自分でビルドする場合は以下を用意してください。
 
 ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
+ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用MinGW-w64とWebView2 SDKが必要です。
 
 **`python python/browser/main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`core/native/engine_x64.dll`を`ctypes`経由でロードして実行します（`python/browser/core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でもブラウザUIは動作します。詳細は[`document/about_jp.md`](document/about_jp.md)を参照してください。
+**`python python/browser/main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`dist/engine_x64.dll`を`ctypes`経由でロードして実行します（`python/browser/core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でもブラウザUIは動作します。詳細は[`docs/about_jp.md`](docs/about_jp.md)を参照してください。
 
 ### ネイティブ版ビルドに必要なもの
 
 ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。今回のローカルビルドでは、WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`、バージョン`16.1.0-14.0.0-r1`で確認しています。
+ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`で動作確認しています。
 
 ```powershell
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
 `build_native.py`は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの`windres.exe`も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+`scripts/build.py`は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの`windres.exe`も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+`scripts/build.py` は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの `windres.exe` も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++` や `windres` を直接実行したい場合は、パッケージ内の `mingw64\bin` を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
 ```
 
 ビルド前にコンパイラとリソースコンパイラを確認します。
+ビルドの実行：
 
 ```powershell
 g++ --version
 windres --version
 python build_native.py
+scripts\build.bat
+# または python scripts/build.py
 ```
 
 PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持します。ただし、`build_native.py`はWinGetの場所を直接検索するため、ビルド自体には再起動は必要ありません。`g++`を優先し、見つからない場合に`clang++`を探します。
+PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持します。ただし、`scripts/build.py`はWinGetの場所を直接検索するため、ビルド自体には再起動は必要ありません。`g++`を優先し、見つからない場合に`clang++`を探します。
+WebView2 SDKのヘッダーは、既定では `C:\tools\webview2\build\native\include` にあるものとして扱います。別の場所にインストールした場合は環境変数 `WEBVIEW2_INCLUDE` を設定してください。
 
 WebView2 SDKのヘッダーは、既定では`C:\tools\webview2\build\native\include`にあるものとして扱います。別の場所にインストールした場合は`WEBVIEW2_INCLUDE`を設定してください。
+## プロトタイプ（試作版）について
+
+`proto/browser/main.py` は開発・検証用のFastAPIブラウザ版プロトタイプです。
+
+```powershell
+python -m pip install -r scripts/requirements.txt
+python proto/browser/main.py
+```
+
+FastAPIサーバーが同じUI（`src/ui/index.html`）をブラウザへ提供し、実際の測定はC++エンジン `dist/engine_x64.dll` を `ctypes` 経由でロードして実行します。このDLLが未ビルドの場合のみ純Python実装にフォールバックします。詳細は[`docs/about_jp.md`](docs/about_jp.md)を参照してください。
 
 ## ライセンス
 
 MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE_jp.txt`](dist/documents/LICENSE_jp.txt)を確認してください。
+MIT Licenseです。英語原文は[`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt)、日本語参考訳は[`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt)を確認してください。
 
 ## 注意事項
 

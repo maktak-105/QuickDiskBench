@@ -48,6 +48,8 @@ jobs:
           $env:PYTHONIOENCODING = 'utf-8'
           python -m pip install -r requirements.txt
           python build_native.py
+          python -m pip install -r scripts/requirements.txt
+          python scripts/build.py
           if ($LASTEXITCODE -ne 0) { throw 'Native build failed' }
 
       - name: Perform CodeQL Analysis

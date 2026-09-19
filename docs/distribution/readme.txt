@@ -72,12 +72,15 @@ Cache modes
 Distribution files
 ------------------
 - `QuickDiskBench.exe` - WebView2 GUI application
+- `QuickDiskBench.exe` - WebView2 GUI application (self-contained embedded HTML)
 - `QuickDiskBench_cli.exe` - command-line application
 - `WebView2Loader.dll` - WebView2 loader
 - `index.html` - GUI content
 - `benchmark-all-drives.ps1` - script for benchmarking all fixed volumes
 - `readme.txt` - this file (English)
 - `readme_jp.txt` - Japanese distribution README
+- `history.txt` - change history (English)
+- `history_jp.txt` - change history (Japanese)
 - `LICENSE.txt` - MIT License, English original
 - `LICENSE_jp.txt` - MIT License, Japanese reference translation
 

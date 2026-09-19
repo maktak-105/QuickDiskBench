@@ -10,16 +10,24 @@
 - **バージョン**: v2.2.1
 
 `python/browser/main.py`は独立したPython試作品ではなく、`core/native/engine_x64.dll`（製品版と同じC++エンジン）を`ctypes`経由でロードするFastAPIブラウザ版。DLL未ビルド時のみ純Python実装にフォールバックする。詳細は[`about_jp.md`](about_jp.md)参照。
+`python/browser/main.py`は独立したPython試作品ではなく、`dist/engine_x64.dll`（製品版と同じC++エンジン）を`ctypes`経由でロードするFastAPIブラウザ版。DLL未ビルド時のみ純Python実装にフォールバックする。詳細は[`about_jp.md`](about_jp.md)参照。
+`proto/browser/main.py` は開発・検証用のFastAPIブラウザ版プロトタイプです。`dist/engine_x64.dll`（製品版と同じC++エンジン）を `ctypes` 経由でロードして実測定を行います（DLL未ビルド時のみ純Python実装にフォールバック）。詳細は[`about_jp.md`](about_jp.md)参照。
 
 ## 2. アーキテクチャ
 
 ```text
 [HTML/CSS/JS (WebView2)]  ←WebMessage(JSON)→  [webview_main.cpp]  ←直接呼出→  [engine.cpp]
+[HTML/CSS/JS (WebView2)]  ←WebMessage(JSON)→  [main_gui.cpp]  ←直接呼出→  [engine.cpp]
 ```
 
 - `engine.cpp` / `engine_x64.dll`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版・`python/browser/main.py`（ctypes経由）からも同じエンジンを呼ぶ
 - `webview_main.cpp`: Win32ウィンドウ生成、WebView2初期化、JSONメッセージの受け渡し
 - フロントエンド: フレームワーク非依存。`bundle_html.py`で1枚のHTMLへバンドル
+- `src/engine/engine.cpp` / `dist/engine_x64.dll`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版・`python/browser/main.py`（ctypes経由）からも同じエンジンを呼ぶ
+- `src/engine/engine.cpp`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版からも同じエンジンを呼ぶ
+- `src/engine/engine.cpp`: オーバーラップ/非同期I/OによるDirect I/O計測本体。GUI非依存で、CLI版からも同じエンジンを直接呼び出し、DLL版（`dist/engine_x64.dll`）を通じてプロトタイプからも呼び出されます。
+- `src/app/main_gui.cpp`: Win32ウィンドウ生成、WebView2初期化、JSONメッセージの受け渡し
+- フロントエンド: フレームワーク非依存。`src/ui/` に配置し、`scripts/bundle_html.py` で自己完結HTMLへバンドルしてEXEのリソース（RCDATA）に埋め込み
 
 ## 3. 画面構成
 
@@ -47,6 +55,7 @@
 
 1. ユーザーがドライブ・設定を選択して測定開始
 2. `webview_main.cpp`がエンジンへ測定を依頼、進捗コールバックでJSへ送信
+2. `src/app/main_gui.cpp`がエンジンへ測定を依頼、進捗コールバックでJSへ送信
 3. 各テスト完了ごとに結果を集計し、平均・標準偏差を算出
 4. 全テスト完了後、実計測時間とともにドライブ情報パネルへ表示
 

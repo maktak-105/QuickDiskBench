@@ -8,6 +8,18 @@ This file records the major changes in each public version.
 - Second digit (for example, `1.0.0` to `1.1.0`): bug fixes
 - Third digit (for example, `1.1.0` to `1.1.1`): other changes, such as documentation updates
 
+## Unreleased
+
+### Structure & Refactoring
+
+- Restructured directory layout to comply with `quick-app-template` v2.0.0:
+  - Source files organized into `src/app/` (GUI), `src/cli/` (CLI), `src/engine/` (core logic), and `src/ui/` (HTML/CSS/JS/images).
+  - Scripts consolidated into `scripts/` (`build.bat`, `build.py`, `bundle_html.py`, `requirements.txt`, `benchmark-all-drives.ps1`).
+  - Documentation organized into `docs/` (developer docs) and `docs/distribution/` (release bundle texts).
+- Embedded self-contained HTML directly into EXE as an RCDATA resource, removing external `index.html` from the release ZIP package.
+- Flattened build outputs directly into `dist/` and separated build intermediates into `build/intermediate/`.
+- Untracked committed binary files (`engine_x64.dll`, `QuickDiskBench_res.o`) from Git.
+
 ## 2.2.1 (2026-08-27)
 
 ### Documentation

@@ -19,15 +19,21 @@ Windows向けのSSD/HDD/NVMeベンチマークツールです。瞬間的なピ�
 サードパーティC++ライブラリ依存なし。フロントエンド（HTML/CSS/JS）もフレームワーク非依存です。
 
 ## 現在の位置づけ：Python版とC++版の関係について
+## プロトタイプ（試作版）について
 
 他の一部のQuick系アプリと異なり、`python/browser/main.py`は**独立した試作実装ではありません**。
 FastAPIサーバーが`templates/index.html`と同じUIをブラウザへ提供し、実際のディスクI/O測定は
 `core/native/engine_x64.dll`（ネイティブ版と同じC++エンジン）を`ctypes`経由でロードして
+FastAPIサーバーが`src/ui/index.html`と同じUIをブラウザへ提供し、実際のディスクI/O測定は
+`dist/engine_x64.dll`（ネイティブ版と同じC++エンジン）を`ctypes`経由でロードして
 実行します（`python/browser/core/benchmark.py`参照）。このDLLが存在しない場合のみ、純Python実装
 （`python/browser/core/win32_io.py`の`Win32DirectIO`）にフォールバックするため、ネイティブビルドが
 無くても`python python/browser/main.py`は動作します。製品として出荷されるのは`QuickDiskBench.exe`
 （C++17 + WebView2、静的リンク）であり、`python/browser/main.py`は同じUIをソースから起動する
 開発用の手段であって、別の独立した製品ではありません。
+`proto/browser/main.py` は開発・検証用のプロトタイプ（FastAPIブラウザ版）です。
+`src/ui/index.html` と同じUIをブラウザへ提供し、`dist/engine_x64.dll`（C++エンジン）を `ctypes` 経由でロードして実測定を行います（DLL未ビルド時は純Python実装にフォールバック）。
+製品として出荷・配布されるのは `dist/QuickDiskBench.exe`（C++17 + WebView2、静的リンク）です。
 
 ## 制作者
 

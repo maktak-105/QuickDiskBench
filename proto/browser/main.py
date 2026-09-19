@@ -15,9 +15,16 @@ from core.benchmark import BenchmarkRunner
 app = FastAPI(title="QuickDiskBench Benchmark API")
 
 # 静的ファイル & テンプレートはリポジトリ直下。このファイルは python/browser/main.py。
+# 静的ファイル & テンプレートは src/ui 配下。このファイルは proto/browser/main.py。
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+UI_DIR = os.path.join(BASE_DIR, "src", "ui")
+app.mount("/css", StaticFiles(directory=os.path.join(UI_DIR, "css")), name="css")
+app.mount("/js", StaticFiles(directory=os.path.join(UI_DIR, "js")), name="js")
+app.mount("/img", StaticFiles(directory=os.path.join(UI_DIR, "img")), name="img")
+app.mount("/static", StaticFiles(directory=UI_DIR), name="static")
+templates = Jinja2Templates(directory=UI_DIR)
 
 # グローバルベンチマークランナー
 current_runner: BenchmarkRunner = None

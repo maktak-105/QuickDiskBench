@@ -77,12 +77,15 @@ PowerShellではカレントフォルダのスクリプトを実行するため�
 配布ファイル
 ------------
 - `QuickDiskBench.exe` - WebView2 GUI版
+- `QuickDiskBench.exe` - WebView2 GUI版（自己完結HTML内蔵）
 - `QuickDiskBench_cli.exe` - コマンドライン版
 - `WebView2Loader.dll` - WebView2ローダー
 - `index.html` - GUIに使用するUI
 - `benchmark-all-drives.ps1` - 全固定ドライブを検出してCLI測定するスクリプト
 - `readme_jp.txt` - この配布ファイルの説明書
 - `readme.txt` - 英語版の配布ファイル説明書
+- `history_jp.txt` - 更新履歴（日本語）
+- `history.txt` - 更新履歴（英語）
 - `LICENSE.txt` - MIT License英語原文
 - `LICENSE_jp.txt` - MIT License日本語参考訳
 

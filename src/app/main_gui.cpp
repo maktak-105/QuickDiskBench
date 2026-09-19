@@ -24,6 +24,7 @@
 
 #define WM_POST_PROGRESS (WM_APP + 1)
 #define IDI_ICON1 101
+#define IDR_INDEX_HTML 201
 
 // Dynamic loader for WebView2Loader.dll
 typedef HRESULT (STDAPICALLTYPE *CreateEnvFn)(
@@ -575,6 +576,22 @@ std::wstring ReadUtf8FileToWString(const std::wstring& path) {
     return wstr;
 }
 
+// Helper to load embedded HTML from RCDATA resource
+std::wstring LoadHtmlFromResource(HINSTANCE hInstance) {
+    HRSRC hRes = FindResourceW(hInstance, MAKEINTRESOURCEW(IDR_INDEX_HTML), MAKEINTRESOURCEW(10) /* RT_RCDATA */);
+    if (!hRes) return L"";
+    HGLOBAL hLoaded = LoadResource(hInstance, hRes);
+    if (!hLoaded) return L"";
+    const char* data = static_cast<const char*>(LockResource(hLoaded));
+    DWORD size = SizeofResource(hInstance, hRes);
+    if (!data || size == 0) return L"";
+    int count = MultiByteToWideChar(CP_UTF8, 0, data, static_cast<int>(size), NULL, 0);
+    if (count <= 0) return L"";
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_UTF8, 0, data, static_cast<int>(size), &wstr[0], count);
+    return wstr;
+}
+
 // ===== Diagnostic file logger =====
 static FILE* g_log = nullptr;
 static void LOG(const char* fmt, ...) {
@@ -684,6 +701,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
     std::wstring htmlFile = appDir + L"\\index.html";
     if (GetFileAttributesW(htmlFile.c_str()) == INVALID_FILE_ATTRIBUTES) {
         htmlFile = appDir + L"\\templates\\index.html";
+    // Determine HTML content: prefer embedded RCDATA resource, fallback to external file
+    std::wstring htmlContent = LoadHtmlFromResource(hInstance);
+    if (!htmlContent.empty()) {
+        LOG("[6] HTML loaded from embedded resource (%zu chars)", htmlContent.size());
+    } else {
+        LOG("[6] Embedded HTML resource not found, trying file fallback...");
+        std::wstring htmlFile = appDir + L"\\index.html";
+        if (GetFileAttributesW(htmlFile.c_str()) == INVALID_FILE_ATTRIBUTES) {
+            htmlFile = appDir + L"\\src\\ui\\index.html";
+        }
+        LOG("[6] Fallback HTML file: %S (exists=%d)", htmlFile.c_str(),
+            GetFileAttributesW(htmlFile.c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0);
+        htmlContent = ReadUtf8FileToWString(htmlFile);
     }
     LOG("[6] HTML file: %S (exists=%d)", htmlFile.c_str(),
         GetFileAttributesW(htmlFile.c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0);

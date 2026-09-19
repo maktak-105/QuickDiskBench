@@ -8,6 +8,18 @@
 - 2桁目の更新（例：`1.0.0`→`1.1.0`）：バグ修正
 - 3桁目の更新（例：`1.1.0`→`1.1.1`）：その他の変更（ドキュメント修正など）
 
+## 未リリース（Unreleased）
+
+### 構成・リファクタリング
+
+- `quick-app-template` v2.0.0 に準拠した標準フォルダ構成に再編成：
+  - ソースコードを `src/app/`（GUI）、`src/cli/`（CLI）、`src/engine/`（コアロジック）、`src/ui/`（HTML/CSS/JS/画像）へ配置。
+  - スクリプト類を `scripts/`（`build.bat`, `build.py`, `bundle_html.py`, `requirements.txt`, `benchmark-all-drives.ps1`）へ集約。
+  - ドキュメントを `docs/`（開発文書）および `docs/distribution/`（配布用テキスト）へ再編成。
+- HTMLを自己完結化してEXEのリソース（RCDATA）に直接埋め込む方式に変更し、配布ZIPから外部 `index.html` を除外。
+- ビルド生成物の出力先を `dist/` 直下にフラット化し、中間生成物を `build/intermediate/` に分離。
+- コミットされていたビルド生成物（`engine_x64.dll`, `QuickDiskBench_res.o`）をGit追跡から解除。
+
 ## 2.2.1（2026-08-27）
 
 ### ドキュメント

@@ -9,6 +9,14 @@ def bundle(output_dir=None):
     css_path = os.path.join(base_dir, "static", "css", "style.css")
     chart_path = os.path.join(base_dir, "static", "js", "chart.min.js")
     app_path = os.path.join(base_dir, "static", "js", "app.js")
+    script_dir = os.path.dirname(__file__)
+    repo_root = os.path.abspath(os.path.join(script_dir, ".."))
+    ui_dir = os.path.join(repo_root, "src", "ui")
+
+    tmpl_path = os.path.join(ui_dir, "index.html")
+    css_path = os.path.join(ui_dir, "css", "style.css")
+    chart_path = os.path.join(ui_dir, "js", "chart.min.js")
+    app_path = os.path.join(ui_dir, "js", "app.js")
 
     with open(tmpl_path, "r", encoding="utf-8") as f:
         html = f.read()
@@ -19,6 +27,10 @@ def bundle(output_dir=None):
     with open(app_path, "r", encoding="utf-8") as f:
         app_js = f.read()
 
+    # Title extraction from index.html if available
+    title_match = re.search(r"<title>(.*?)</title>", html)
+    title = title_match.group(1) if title_match else "QuickDiskBench"
+
     # Build clean standalone HTML
     bundled = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -26,6 +38,7 @@ def bundle(output_dir=None):
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickDiskBench - ディスクベンチマークダッシュボード</title>
+  <title>{title}</title>
   <style>
 {css}
   </style>
@@ -44,6 +57,7 @@ def bundle(output_dir=None):
     body_content = re.sub(r'<script.*?</script>', '', body_content, flags=re.DOTALL)
 
     # NavigateToString は相対パスの画像を解決できないので data URI に埋め込む
+    # NavigateToString cannot resolve relative image URLs; inline images as base64 data URIs
     def _inline_img(match):
         prefix, src, suffix = match.group(1), match.group(2), match.group(3)
         if src.startswith("data:") or src.startswith("http://") or src.startswith("https://"):
@@ -72,12 +86,15 @@ def bundle(output_dir=None):
 
     if output_dir is None:
         output_dir = os.path.join(base_dir, "dist")
+        output_dir = os.path.join(repo_root, "build", "intermediate")
     os.makedirs(output_dir, exist_ok=True)
     dist_index = os.path.join(output_dir, "index.html")
     with open(dist_index, "w", encoding="utf-8") as f:
         f.write(bundled)
 
     print(f"[OK] Generated self-contained bundle at {dist_index} ({len(bundled)} bytes)")
+    return dist_index
+
 
 if __name__ == "__main__":
     bundle()

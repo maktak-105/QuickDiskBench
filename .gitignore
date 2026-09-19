@@ -1,12 +1,39 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+venv/
+.venv/
+env/
+.env
+
+# ログ・一時ファイル
+*.log
 *.dat
 *.log
+*_debug.log
+
+# エディタ
 .vscode/
 .idea/
 venv/
 env/
 .env
 /dist/binary/
+
+# build: 中間生成物
+build/
+
+# scripts: スクリプト自体はGit管理する。依存環境だけ除外する
+scripts/.venv/
+src/**/*.o
+src/**/*.dll
+
+# dist: ビルド成果物はGit管理外、フォルダ構造だけ管理
+dist/*
+!dist/.gitkeep
+
+# docs/distribution: 配布用ドキュメント（readme.txt / history.txt / LICENSE.txt 等）はGit管理する
+
+# AIツール・作業メモ
 CODEX_PROJECT_NOTE.txt
