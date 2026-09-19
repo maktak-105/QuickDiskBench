@@ -24,12 +24,12 @@ The ZIP contains all distribution files in one flat folder:
 - `history.txt` / `history_jp.txt` - update history
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License files
 
-SHA-256 of the v3.0.0 release binaries:
+### Integrity verification (SHA-256)
 
-```
-E1B46C7F2E33395E7731CCBC247F62B44802B95E8F56D20FD9ACEFFE31FFBB01  QuickDiskBench.exe
-21EDACCC3D5F35EB575576D16A17B9B23F90CCCDF9FD49B4F4D3CB28B8362B54  QuickDiskBench_cli.exe
-A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
+Official SHA-256 checksums for the distribution ZIP and binaries are automatically computed during the CI (GitHub Actions) build and published as `SHA256SUMS.txt` on each release page. Verify the downloaded package with PowerShell:
+
+```powershell
+Get-FileHash .\QuickDiskBench-binary.zip -Algorithm SHA256
 ```
 
 Run `QuickDiskBench.exe` for the GUI. The language switch, CSV export, and Help buttons are stacked on the right side of the header in both Japanese and English. The author badge is shown in a separate Version Info dialog, opened from a button at the top of the Help dialog. If WebView2 Runtime is unavailable, install Microsoft Edge WebView2 Runtime (Evergreen). It is normally included with Windows 11, but may require installation on older Windows 10 systems, LTSC, Server, or managed devices.
