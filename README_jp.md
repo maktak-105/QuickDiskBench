@@ -11,24 +11,24 @@ Windows向けのSSD / HDD / NVMeベンチマークツールです。WindowsのOS
 ソースコードやPython環境がない場合は、GitHub Releasesから配布用ZIPをダウンロードしてください。
 
 - [最新版の配布ページ](https://github.com/maktak-105/QuickDiskBench/releases)
-- [QuickDiskBench v2.2.1](https://github.com/maktak-105/QuickDiskBench/releases/tag/v2.2.1)
-- [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v2.2.1/QuickDiskBench-binary.zip)
+- [QuickDiskBench v3.0.0](https://github.com/maktak-105/QuickDiskBench/releases/tag/v3.0.0)
+- [QuickDiskBench-binary.zipを直接ダウンロード](https://github.com/maktak-105/QuickDiskBench/releases/download/v3.0.0/QuickDiskBench-binary.zip)
 
 ZIPを展開すると、すべての配布ファイルが同じフォルダに入ります。
 
-- `QuickDiskBench.exe` - GUI版
+- `QuickDiskBench.exe` - GUI版（自己完結HTML内蔵）
 - `QuickDiskBench_cli.exe` - コマンドライン版
 - `WebView2Loader.dll` - WebView2接続用ローダー
-- `index.html` - GUI本体
 - `benchmark-all-drives.ps1` - 固定ドライブ一括測定スクリプト
 - `readme.txt` / `readme_jp.txt` - 使用説明書
+- `history.txt` / `history_jp.txt` - 更新履歴
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License
 
-v2.2.1 配布バイナリの SHA-256:
+v3.0.0 配布バイナリの SHA-256:
 
 ```
-E1AA79C4EAB57647F488A53929D5FEE0C904B8BF9B83E4EFCFAA0DE67E5948FA  QuickDiskBench.exe
-8053430F2278B423D1246313B7649D7429386A0A6C99E51207304905505C302D  QuickDiskBench_cli.exe
+E1B46C7F2E33395E7731CCBC247F62B44802B95E8F56D20FD9ACEFFE31FFBB01  QuickDiskBench.exe
+21EDACCC3D5F35EB575576D16A17B9B23F90CCCDF9FD49B4F4D3CB28B8362B54  QuickDiskBench_cli.exe
 A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
 ```
 
@@ -89,46 +89,47 @@ powershell -ExecutionPolicy Bypass -File .\benchmark-all-drives.ps1
 
 測定値は、ドライブの温度、空き容量、電源設定、接続方式、バックグラウンド処理、ファームウェアなどで変動します。
 
-## ソースから起動する場合
+## ビルド方法
 
-```powershell
-python -m pip install -r requirements.txt
-python python/browser/main.py
-```
-
-ただし、通常の利用にはGitHub Releasesの配布ZIPを推奨します。ネイティブ版のビルドにはWindows用LLVM-MinGWとWebView2 SDKが必要です。
-
-**`python python/browser/main.py`について**: これは独立したPython実装ではありません。FastAPIサーバーが同じUIをブラウザへ提供し、実際の測定は配布版`QuickDiskBench.exe`と同じC++エンジン`core/native/engine_x64.dll`を`ctypes`経由でロードして実行します（`python/browser/core/benchmark.py`参照）。このDLLが未ビルドの場合のみ純Python実装にフォールバックするため、ネイティブビルド前でもブラウザUIは動作します。詳細は[`document/about_jp.md`](document/about_jp.md)を参照してください。
+通常の利用にはGitHub Releasesの配布ZIPを推奨します。自分でビルドする場合は以下を用意してください。
 
 ### ネイティブ版ビルドに必要なもの
 
-ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。今回のローカルビルドでは、WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`、バージョン`16.1.0-14.0.0-r1`で確認しています。
+ネイティブ版はMinGW-w64のC++ツールチェーンを使用します。WinLibs（MCF threads、UCRT runtime）のWinGetパッケージ`BrechtSanders.WinLibs.MCF.UCRT`で動作確認しています。
 
 ```powershell
 winget install --id BrechtSanders.WinLibs.MCF.UCRT --exact --source winget
 ```
 
-`build_native.py`は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの`windres.exe`も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++`や`windres`を直接実行したい場合は、パッケージ内の`mingw64\bin`を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
+`scripts/build.py` は標準的なWinGetパッケージの場所を自動検索し、検出したコンパイラと同じフォルダの `windres.exe` も使うため、プロジェクトのビルドだけならPATH登録は必須ではありません。`g++` や `windres` を直接実行したい場合は、パッケージ内の `mingw64\bin` を**ユーザー環境変数のPATH**に追加してください。標準的なWinGetインストール先は通常次の場所です。
 
 ```text
 %LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.MCF.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin
 ```
 
-ビルド前にコンパイラとリソースコンパイラを確認します。
+ビルドの実行：
 
 ```powershell
-g++ --version
-windres --version
-python build_native.py
+scripts\build.bat
+# または python scripts/build.py
 ```
 
-PATHを変更した後は、ターミナルまたはIDEをいったん終了して起動し直してください。既に開いているセッションは古いPATHを保持します。ただし、`build_native.py`はWinGetの場所を直接検索するため、ビルド自体には再起動は必要ありません。`g++`を優先し、見つからない場合に`clang++`を探します。
+WebView2 SDKのヘッダーは、既定では `C:\tools\webview2\build\native\include` にあるものとして扱います。別の場所にインストールした場合は環境変数 `WEBVIEW2_INCLUDE` を設定してください。
 
-WebView2 SDKのヘッダーは、既定では`C:\tools\webview2\build\native\include`にあるものとして扱います。別の場所にインストールした場合は`WEBVIEW2_INCLUDE`を設定してください。
+## プロトタイプ（試作版）について
+
+`proto/browser/main.py` は開発・検証用のFastAPIブラウザ版プロトタイプです。
+
+```powershell
+python -m pip install -r scripts/requirements.txt
+python proto/browser/main.py
+```
+
+FastAPIサーバーが同じUI（`src/ui/index.html`）をブラウザへ提供し、実際の測定はC++エンジン `dist/engine_x64.dll` を `ctypes` 経由でロードして実行します。このDLLが未ビルドの場合のみ純Python実装にフォールバックします。詳細は[`docs/about_jp.md`](docs/about_jp.md)を参照してください。
 
 ## ライセンス
 
-MIT Licenseです。英語原文は[`dist/documents/LICENSE.txt`](dist/documents/LICENSE.txt)、日本語参考訳は[`dist/documents/LICENSE_jp.txt`](dist/documents/LICENSE_jp.txt)を確認してください。
+MIT Licenseです。英語原文は[`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt)、日本語参考訳は[`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt)を確認してください。
 
 ## 注意事項
 

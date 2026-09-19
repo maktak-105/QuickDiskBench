@@ -1,0 +1,92 @@
+import os
+import re
+import base64
+
+
+def bundle(output_dir=None):
+    script_dir = os.path.dirname(__file__)
+    repo_root = os.path.abspath(os.path.join(script_dir, ".."))
+    ui_dir = os.path.join(repo_root, "src", "ui")
+
+    tmpl_path = os.path.join(ui_dir, "index.html")
+    css_path = os.path.join(ui_dir, "css", "style.css")
+    chart_path = os.path.join(ui_dir, "js", "chart.min.js")
+    app_path = os.path.join(ui_dir, "js", "app.js")
+
+    with open(tmpl_path, "r", encoding="utf-8") as f:
+        html = f.read()
+    with open(css_path, "r", encoding="utf-8") as f:
+        css = f.read()
+    with open(chart_path, "r", encoding="utf-8") as f:
+        chart_js = f.read()
+    with open(app_path, "r", encoding="utf-8") as f:
+        app_js = f.read()
+
+    # Title extraction from index.html if available
+    title_match = re.search(r"<title>(.*?)</title>", html)
+    title = title_match.group(1) if title_match else "QuickDiskBench"
+
+    # Build clean standalone HTML
+    bundled = f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <style>
+{css}
+  </style>
+  <script>
+{chart_js}
+  </script>
+</head>
+<body>
+"""
+    # Extract body content from index.html
+    body_start = html.find("<body>") + len("<body>")
+    body_end = html.find("</body>")
+    body_content = html[body_start:body_end]
+
+    # Remove script tags that reference external files
+    body_content = re.sub(r'<script.*?</script>', '', body_content, flags=re.DOTALL)
+
+    # NavigateToString cannot resolve relative image URLs; inline images as base64 data URIs
+    def _inline_img(match):
+        prefix, src, suffix = match.group(1), match.group(2), match.group(3)
+        if src.startswith("data:") or src.startswith("http://") or src.startswith("https://"):
+            return match.group(0)
+        img_path = os.path.normpath(os.path.join(os.path.dirname(tmpl_path), src))
+        if not os.path.isfile(img_path):
+            print(f"[WARN] image not found for inline: {img_path}")
+            return match.group(0)
+        ext = os.path.splitext(img_path)[1].lower()
+        mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml"}.get(ext, "application/octet-stream")
+        with open(img_path, "rb") as imgf:
+            b64 = base64.b64encode(imgf.read()).decode("ascii")
+        return f'{prefix}data:{mime};base64,{b64}{suffix}'
+
+    body_content = re.sub(r'(<img\b[^>]*\bsrc=")([^"]+)(")', _inline_img, body_content)
+
+    bundled += body_content
+    bundled += f"""
+  <script>
+{app_js}
+  </script>
+</body>
+</html>
+"""
+
+    if output_dir is None:
+        output_dir = os.path.join(repo_root, "build", "intermediate")
+    os.makedirs(output_dir, exist_ok=True)
+    dist_index = os.path.join(output_dir, "index.html")
+    with open(dist_index, "w", encoding="utf-8") as f:
+        f.write(bundled)
+
+    print(f"[OK] Generated self-contained bundle at {dist_index} ({len(bundled)} bytes)")
+    return dist_index
+
+
+if __name__ == "__main__":
+    bundle()
