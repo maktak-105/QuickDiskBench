@@ -24,12 +24,12 @@ ZIPを展開すると、すべての配布ファイルが同じフォルダに�
 - `history.txt` / `history_jp.txt` - 更新履歴
 - `LICENSE.txt` / `LICENSE_jp.txt` - MIT License
 
-v3.0.0 配布バイナリの SHA-256:
+### 完全性の確認（SHA-256）
 
-```
-E1B46C7F2E33395E7731CCBC247F62B44802B95E8F56D20FD9ACEFFE31FFBB01  QuickDiskBench.exe
-21EDACCC3D5F35EB575576D16A17B9B23F90CCCDF9FD49B4F4D3CB28B8362B54  QuickDiskBench_cli.exe
-A9A09232C25805323D4CFB3FC8F545A190A9C8A99C93262EA99D0B88DF99EC90  WebView2Loader.dll
+配布用ZIPおよび各バイナリの公式SHA-256チェックサムは、CI（GitHub Actions）のビルド時に自動算出され、GitHub Releasesの各リリースに `SHA256SUMS.txt` として添付されています。ダウンロード後の整合性確認には `SHA256SUMS.txt` を参照してください。
+
+```powershell
+Get-FileHash .\QuickDiskBench-binary.zip -Algorithm SHA256
 ```
 
 GUI版は `QuickDiskBench.exe` を実行します。言語切替、CSV出力、ヘルプボタンはヘッダー右端に縦に並び、日本語・英語のどちらでも同じ配置です。作者ワッペンはヘルプダイアログ上部の「バージョン情報」ボタンから開く別ダイアログに表示されます。WebView2 Runtimeがない場合は、Microsoft Edge WebView2 Runtime (Evergreen)をインストールしてください。Windows 11には通常含まれていますが、Windows 10の古い環境、LTSC、Server、管理端末では追加導入が必要な場合があります。
