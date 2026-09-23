@@ -8,6 +8,8 @@ QuickDiskBench is a Windows SSD / HDD / NVMe benchmark tool. It measures sequent
 
 ## Using the binary release
 
+Code signing: Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org). The application is under review; releases published after approval will be signed. See [Code signing policy](docs/code_signing_policy.md).
+
 If you do not need the source code or Python environment, download the distribution ZIP from GitHub Releases.
 
 - [Latest releases](https://github.com/maktak-105/QuickDiskBench/releases)
