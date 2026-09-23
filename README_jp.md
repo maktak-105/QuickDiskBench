@@ -129,7 +129,7 @@ FastAPIサーバーが同じUI（`src/ui/index.html`）をブラウザへ提供�
 
 ## ライセンス
 
-MIT Licenseです。英語原文は[`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt)、日本語参考訳は[`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt)を確認してください。
+MIT Licenseです。英語原文は[`LICENSE`](LICENSE)（配布物では[`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt)）、日本語参考訳は[`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt)を確認してください。
 
 ## 注意事項
 
