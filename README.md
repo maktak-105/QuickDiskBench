@@ -128,7 +128,7 @@ It is a FastAPI server that serves the same UI (`src/ui/index.html`) in a browse
 
 ## License
 
-This project is provided under the MIT License. See [`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt) for the English original and [`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt) for the Japanese reference translation.
+This project is provided under the MIT License. See [`LICENSE`](LICENSE) (also shipped as [`docs/distribution/LICENSE.txt`](docs/distribution/LICENSE.txt)) for the English original and [`docs/distribution/LICENSE_jp.txt`](docs/distribution/LICENSE_jp.txt) for the Japanese reference translation.
 
 ## Disclaimer
 
